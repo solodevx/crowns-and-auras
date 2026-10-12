@@ -1,6 +1,15 @@
 import { siteConfig } from "@/config/site";
 
-export default function Footer() {
+// CHANGE 1: new helper. "use cache" tells Next.js to work out the year once and remember it.
+async function getCurrentYear() {
+  "use cache";
+  return new Date().getFullYear();
+}
+
+// CHANGE 2: added "async" so we can use "await" inside
+export default async function Footer() {
+  const year = await getCurrentYear(); // CHANGE 2: ask the helper for the year
+
   return (
     <footer id="contact" className="mt-16 border-t border-ink/10">
       <div className="mx-auto max-w-6xl px-4 py-10">
@@ -26,7 +35,7 @@ export default function Footer() {
         </ul>
 
         <p className="mt-8 text-xs text-ink/50">
-          © {new Date().getFullYear()} {siteConfig.name}. Placeholder content.
+          © {year} {siteConfig.name}. Placeholder content. {/* CHANGE 3: {year} instead of new Date()... */}
         </p>
       </div>
     </footer>
