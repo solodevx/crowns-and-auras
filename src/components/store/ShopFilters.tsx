@@ -46,7 +46,7 @@ export default function ShopFilters({ brands, filters }: ShopFiltersProps) {
           {scentFamilies.map((scent) => (
             <label
               key={scent}
-              className="flex h-11 cursor-pointer items-center gap-2 rounded-full border border-ink/20 px-4 text-sm has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-cream"
+              className="flex h-11 cursor-pointer items-center gap-2 rounded-full border border-ink/20 px-4 text-sm has-checked:border-ink has-checked:bg-ink has-checked:text-cream"
             >
               <input
                 type="checkbox"
