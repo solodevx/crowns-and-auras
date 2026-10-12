@@ -33,13 +33,25 @@ export function getBrands(products: Product[]): string[] {
   return [...new Set(products.map((product) => product.brand))].sort();
 }
 
-// ─────────────────────────────────────────────
-// YOUR TURN: write this function.
-// ─────────────────────────────────────────────
+// Decides which products match what the customer picked.
 export function filterProducts(
   products: Product[],
   filters: ProductFilters,
 ): Product[] {
-  // TODO
-  return products;
+  const searchText = filters.q.toLowerCase();
+
+  return products.filter((product) => {
+    const matchesSearch =
+      product.brand.toLowerCase().includes(searchText) ||
+      product.name.toLowerCase().includes(searchText);
+
+    const matchesBrand =
+      filters.brand === "" || product.brand === filters.brand;
+
+    const matchesScent =
+      filters.scents.length === 0 ||
+      product.scentFamilies.some((scent) => filters.scents.includes(scent));
+
+    return matchesSearch && matchesBrand && matchesScent;
+  });
 }
