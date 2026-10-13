@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import SizePicker from "@/components/store/SizePicker";
 import { placeholderProducts } from "@/data/placeholder-products";
 import { getProductBySlug } from "@/lib/product";
 
@@ -9,7 +10,6 @@ export function generateStaticParams() {
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
 
-// The page frame. It does NOT open the params, it just passes them down.
 export default function ProductPage({ params }: ProductPageProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 py-12">
@@ -20,7 +20,6 @@ export default function ProductPage({ params }: ProductPageProps) {
   );
 }
 
-// The part that needs the address. It opens the params inside Suspense.
 async function ProductDetails({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = getProductBySlug(slug);
@@ -34,6 +33,7 @@ async function ProductDetails({ params }: ProductPageProps) {
       </p>
       <h1 className="font-serif text-3xl">{product.name}</h1>
       <p className="mt-4 max-w-xl text-ink/70">{product.description}</p>
+      <SizePicker product={product} />
     </>
   );
 }

@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
+import { getCartCount, useCartItems } from "@/lib/cart-store";
 
 export default function CartLink() {
-  const count = 0; // TODO: read from cart state in the cart phase
+  const count = getCartCount(useCartItems());
 
   return (
     <Link
