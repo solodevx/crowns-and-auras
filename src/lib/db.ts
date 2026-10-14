@@ -5,8 +5,7 @@ type MongooseCache = {
   promise: Promise<typeof mongoose> | null;
 };
 
-// In dev, the server reloads often. Keeping the connection on globalThis
-// stops us from opening a new one on every reload.
+
 const globalForMongoose = globalThis as unknown as {
   mongooseCache?: MongooseCache;
 };
