@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { deliveryZones } from "@/config/delivery-zones";
+import { deliveryZones, getDeliveryZone } from "@/config/delivery-zones";
 import { useCartItems } from "@/lib/cart-store";
 import { formatNaira } from "@/lib/format";
+import { calculateOrderTotals } from "@/lib/order";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validators";
 
 type FormValues = {
@@ -47,7 +48,6 @@ export default function CheckoutForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState("");
 
-  // Every input calls this when the customer types or picks something
   function handleChange(
     event: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -59,7 +59,7 @@ export default function CheckoutForm() {
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // stop the browser from reloading the page
+    event.preventDefault();
 
     const result = checkoutSchema.safeParse(values);
 
@@ -83,7 +83,6 @@ export default function CheckoutForm() {
     setStatus("Details look good. Saving the order comes in the next ticket.");
   }
 
-  // The props every input shares, so we don't repeat them for each field
   function fieldProps(name: keyof FormValues) {
     return {
       id: name,
@@ -94,6 +93,10 @@ export default function CheckoutForm() {
       "aria-describedby": errors[name] ? `${name}-error` : undefined,
     };
   }
+
+  // Figured out on every change, so the summary is always up to date
+  const selectedZone = getDeliveryZone(values.zoneId);
+  const totals = calculateOrderTotals(items, values.zoneId);
 
   // All hooks are above this line, so the early return is safe
   if (items.length === 0) {
@@ -111,98 +114,148 @@ export default function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mt-8 max-w-xl space-y-6">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium">
-          Full name
-        </label>
-        <input
-          {...fieldProps("name")}
-          type="text"
-          autoComplete="name"
-          className={inputClassName}
-        />
-        <FieldError id="name" message={errors.name} />
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="mt-8 grid gap-8 md:grid-cols-[1fr_22rem]"
+    >
+      <div className="max-w-xl space-y-6">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium">
+            Full name
+          </label>
+          <input
+            {...fieldProps("name")}
+            type="text"
+            autoComplete="name"
+            className={inputClassName}
+          />
+          <FieldError id="name" message={errors.name} />
+        </div>
+
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium">
+            Phone number
+          </label>
+          <input
+            {...fieldProps("phone")}
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="08012345678"
+            className={inputClassName}
+          />
+          <FieldError id="phone" message={errors.phone} />
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium">
+            Email <span className="font-normal text-ink/60">(optional)</span>
+          </label>
+          <input
+            {...fieldProps("email")}
+            type="email"
+            autoComplete="email"
+            className={inputClassName}
+          />
+          <FieldError id="email" message={errors.email} />
+        </div>
+
+        <div>
+          <label htmlFor="address" className="block text-sm font-medium">
+            Delivery address
+          </label>
+          <textarea
+            {...fieldProps("address")}
+            rows={3}
+            autoComplete="street-address"
+            className={textareaClassName}
+          />
+          <FieldError id="address" message={errors.address} />
+        </div>
+
+        <div>
+          <label htmlFor="zoneId" className="block text-sm font-medium">
+            Delivery area
+          </label>
+          <select {...fieldProps("zoneId")} className={inputClassName}>
+            <option value="">Choose your area</option>
+            {deliveryZones.map((zone) => (
+              <option key={zone.id} value={zone.id}>
+                {zone.name} - {formatNaira(zone.fee)}
+              </option>
+            ))}
+          </select>
+          <FieldError id="zoneId" message={errors.zoneId} />
+        </div>
+
+        <div>
+          <label htmlFor="notes" className="block text-sm font-medium">
+            Notes <span className="font-normal text-ink/60">(optional)</span>
+          </label>
+          <textarea
+            {...fieldProps("notes")}
+            rows={2}
+            className={textareaClassName}
+          />
+          <FieldError id="notes" message={errors.notes} />
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium">
-          Phone number
-        </label>
-        <input
-          {...fieldProps("phone")}
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="08012345678"
-          className={inputClassName}
-        />
-        <FieldError id="phone" message={errors.phone} />
-      </div>
+      <aside className="h-fit rounded-lg border border-ink/10 p-6">
+        <h2 className="font-serif text-xl">Order summary</h2>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium">
-          Email <span className="font-normal text-ink/60">(optional)</span>
-        </label>
-        <input
-          {...fieldProps("email")}
-          type="email"
-          autoComplete="email"
-          className={inputClassName}
-        />
-        <FieldError id="email" message={errors.email} />
-      </div>
-
-      <div>
-        <label htmlFor="address" className="block text-sm font-medium">
-          Delivery address
-        </label>
-        <textarea
-          {...fieldProps("address")}
-          rows={3}
-          autoComplete="street-address"
-          className={textareaClassName}
-        />
-        <FieldError id="address" message={errors.address} />
-      </div>
-
-      <div>
-        <label htmlFor="zoneId" className="block text-sm font-medium">
-          Delivery area
-        </label>
-        <select {...fieldProps("zoneId")} className={inputClassName}>
-          <option value="">Choose your area</option>
-          {deliveryZones.map((zone) => (
-            <option key={zone.id} value={zone.id}>
-              {zone.name} - {formatNaira(zone.fee)}
-            </option>
+        <ul className="mt-4 divide-y divide-ink/10 text-sm">
+          {items.map((item) => (
+            <li
+              key={`${item.productId}-${item.size}`}
+              className="flex justify-between gap-4 py-3"
+            >
+              <span>
+                {item.name} ({item.size}) x {item.quantity}
+              </span>
+              <span>{formatNaira(item.unitPrice * item.quantity)}</span>
+            </li>
           ))}
-        </select>
-        <FieldError id="zoneId" message={errors.zoneId} />
-      </div>
+        </ul>
 
-      <div>
-        <label htmlFor="notes" className="block text-sm font-medium">
-          Notes <span className="font-normal text-ink/60">(optional)</span>
-        </label>
-        <textarea
-          {...fieldProps("notes")}
-          rows={2}
-          className={textareaClassName}
-        />
-        <FieldError id="notes" message={errors.notes} />
-      </div>
+        <dl className="mt-4 space-y-2 text-sm">
+          <div className="flex justify-between">
+            <dt>Subtotal</dt>
+            <dd>{formatNaira(totals.subtotal)}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt>Delivery</dt>
+            <dd>
+              {selectedZone ? formatNaira(totals.deliveryFee) : "Choose your area"}
+            </dd>
+          </div>
+          <div className="flex justify-between border-t border-ink/10 pt-2 text-base font-medium">
+            <dt>Total</dt>
+            <dd>{formatNaira(totals.total)}</dd>
+          </div>
+        </dl>
 
-      <button
-        type="submit"
-        className="h-12 w-full rounded bg-ink px-8 text-sm text-cream sm:w-auto"
-      >
-        Place order
-      </button>
+        <p className="mt-4 text-sm text-ink/60">
+          After you place your order, you will get our bank details to pay by
+          transfer.
+        </p>
 
-      <p role="status" className="text-sm">
-        {status}
-      </p>
+        <button
+          type="submit"
+          className="mt-6 h-12 w-full rounded bg-ink px-8 text-sm text-cream"
+        >
+          Place order
+        </button>
+
+        <p role="status" className="mt-3 text-sm">
+          {status}
+        </p>
+
+        <Link href="/cart" className="mt-4 inline-block text-sm underline">
+          Back to cart
+        </Link>
+      </aside>
     </form>
   );
 }
