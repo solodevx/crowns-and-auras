@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createOrder } from "@/app/(store)/checkout/actions";
 import { deliveryZones, getDeliveryZone } from "@/config/delivery-zones";
 import { useCartItems } from "@/lib/cart-store";
 import { formatNaira } from "@/lib/format";
@@ -42,11 +44,22 @@ function FieldError({ id, message }: { id: string; message?: string }) {
   );
 }
 
+function focusFirstError(fieldErrors: FieldErrors) {
+  const firstField = Object.keys(fieldErrors)[0];
+  if (firstField) document.getElementById(firstField)?.focus();
+}
+
 export default function CheckoutForm() {
+  const router = useRouter();
   const items = useCartItems();
   const [values, setValues] = useState<FormValues>(emptyValues);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [status, setStatus] = useState("");
+  const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // The "ticket stub" for this order. It is created once and survives redraws,
+  // so pressing Place order twice sends the same stub both times.
+  const submissionIdRef = useRef<string | null>(null);
 
   function handleChange(
     event: React.ChangeEvent<
@@ -58,9 +71,12 @@ export default function CheckoutForm() {
     setErrors((previous) => ({ ...previous, [name]: undefined }));
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmitting) return;
+    setFormError("");
 
+    // First check, in the browser, for quick friendly messages
     const result = checkoutSchema.safeParse(values);
 
     if (!result.success) {
@@ -70,17 +86,44 @@ export default function CheckoutForm() {
         if (!fieldErrors[field]) fieldErrors[field] = issue.message;
       }
       setErrors(fieldErrors);
-      setStatus("");
-
-      const firstField = Object.keys(fieldErrors)[0];
-      document.getElementById(firstField)?.focus();
+      focusFirstError(fieldErrors);
       return;
     }
 
     setErrors({});
-    // TODO (CA-9): send result.data to the server to create the order
-    console.log("Valid details:", result.data);
-    setStatus("Details look good. Saving the order comes in the next ticket.");
+    submissionIdRef.current ??= crypto.randomUUID();
+    setIsSubmitting(true);
+
+    try {
+      // We send what the customer WANTS. Never prices: the server looks those up.
+      const response = await createOrder({
+        submissionId: submissionIdRef.current,
+        details: result.data,
+        items: items.map((item) => ({
+          productId: item.productId,
+          size: item.size,
+          quantity: item.quantity,
+        })),
+      });
+
+      if (response.ok) {
+        router.push(`/order-confirmation/${response.orderNumber}`);
+        return; // keep the button locked while we navigate away
+      }
+
+      if (response.fieldErrors) {
+        const serverErrors = response.fieldErrors as FieldErrors;
+        setErrors(serverErrors);
+        focusFirstError(serverErrors);
+      }
+      setFormError(response.message);
+    } catch {
+      setFormError(
+        "Could not reach the server. Check your connection and try again.",
+      );
+    }
+
+    setIsSubmitting(false);
   }
 
   function fieldProps(name: keyof FormValues) {
@@ -94,7 +137,6 @@ export default function CheckoutForm() {
     };
   }
 
-  // Figured out on every change, so the summary is always up to date
   const selectedZone = getDeliveryZone(values.zoneId);
   const totals = calculateOrderTotals(items, values.zoneId);
 
@@ -243,13 +285,14 @@ export default function CheckoutForm() {
 
         <button
           type="submit"
-          className="mt-6 h-12 w-full rounded bg-ink px-8 text-sm text-cream"
+          disabled={isSubmitting}
+          className="mt-6 h-12 w-full rounded bg-ink px-8 text-sm text-cream disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Place order
+          {isSubmitting ? "Placing your order..." : "Place order"}
         </button>
 
-        <p role="status" className="mt-3 text-sm">
-          {status}
+        <p role="alert" className="mt-3 text-sm text-red-700">
+          {formError}
         </p>
 
         <Link href="/cart" className="mt-4 inline-block text-sm underline">

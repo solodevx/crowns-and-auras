@@ -115,3 +115,6 @@ export function getCartCount(items: CartItem[]): number {
 export function getCartSubtotal(items: CartItem[]): number {
   return items.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
 }
+export function clearCart() {
+  writeCart([]);
+}
