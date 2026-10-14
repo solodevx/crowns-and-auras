@@ -1,12 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import SizePicker from "@/components/store/SizePicker";
-import { placeholderProducts } from "@/data/placeholder-products";
-import { getProductBySlug } from "@/lib/product";
-
-export function generateStaticParams() {
-  return placeholderProducts.map((product) => ({ slug: product.slug }));
-}
+import { getProductBySlug } from "@/lib/products";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
 
@@ -22,7 +17,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
 async function ProductDetails({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) notFound();
 

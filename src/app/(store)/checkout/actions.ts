@@ -72,7 +72,7 @@ export async function createOrder(payload: unknown): Promise<CreateOrderResult> 
   const { submissionId, details, items } = parsed.data;
 
   // Prices come from OUR data, never from the browser
-  const priced = priceCart(items);
+  const priced = await priceCart(items);
   if (!priced.ok) return { ok: false, message: priced.message };
 
   const zone = getDeliveryZone(details.zoneId);

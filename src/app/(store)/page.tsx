@@ -1,8 +1,9 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/store/ProductCard";
 import { scentFamilies } from "@/config/scents";
 import { siteConfig } from "@/config/site";
-import { placeholderProducts } from "@/data/placeholder-products";
+import { getFeaturedProducts } from "@/lib/products";
 
 // PLACEHOLDER COPY: replace with the client's real wording.
 const steps = [
@@ -11,11 +12,23 @@ const steps = [
   { title: "We deliver", text: "Delivery across Lagos." },
 ];
 
-export default function HomePage() {
-  const featuredProducts = placeholderProducts.filter(
-    (product) => product.featured,
-  );
+async function FeaturedProducts() {
+  const featuredProducts = await getFeaturedProducts();
 
+  if (featuredProducts.length === 0) {
+    return <p className="mt-6 text-ink/70">New perfumes coming soon.</p>;
+  }
+
+  return (
+    <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-3">
+      {featuredProducts.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+    </div>
+  );
+}
+
+export default function HomePage() {
   return (
     <>
       <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
@@ -54,11 +67,9 @@ export default function HomePage() {
             View all
           </Link>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-3">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <Suspense fallback={<p className="mt-6 text-ink/60">Loading…</p>}>
+          <FeaturedProducts />
+        </Suspense>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12">

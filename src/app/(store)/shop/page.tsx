@@ -2,13 +2,13 @@ import { Suspense } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/store/ProductCard";
 import ShopFilters from "@/components/store/ShopFilters";
-import { placeholderProducts } from "@/data/placeholder-products";
 import {
   filterProducts,
   getBrands,
   parseFilters,
   type SearchParams,
 } from "@/lib/filter-products";
+import { getProducts } from "@/lib/products";
 
 export const metadata = { title: "Shop" };
 
@@ -26,14 +26,14 @@ export default function ShopPage({ searchParams }: ShopPageProps) {
 }
 
 async function ShopResults({ searchParams }: ShopPageProps) {
-  // searchParams arrives as a Promise ("a value that's coming"), so we await it
   const filters = parseFilters(await searchParams);
-  const products = filterProducts(placeholderProducts, filters);
+  const allProducts = await getProducts();
+  const products = filterProducts(allProducts, filters);
 
   return (
     <div className="mt-8 grid gap-8 md:grid-cols-[16rem_1fr]">
       <aside>
-        <ShopFilters brands={getBrands(placeholderProducts)} filters={filters} />
+        <ShopFilters brands={getBrands(allProducts)} filters={filters} />
       </aside>
 
       <div>

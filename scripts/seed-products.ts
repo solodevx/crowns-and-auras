@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { placeholderProducts } from "../src/data/placeholder-products";
+import { placeholderProducts } from "./seed-data";
 import { Product } from "../src/models/Product";
 
 async function main() {
