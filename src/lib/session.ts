@@ -36,22 +36,26 @@ export async function createSession(adminId: string): Promise<void> {
   });
 }
 
-// ─────────────────────────────────────────────
-// YOUR TURN: check the wristband.
-// Returns { adminId } if the cookie holds a valid, unexpired, correctly
-// signed token. Returns null in EVERY other case.
-// ─────────────────────────────────────────────
+
 export async function getSession(): Promise<AdminSession | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
 
-  // TODO: inside a try/catch:
-  //   1. const { payload } = await jwtVerify(token, getSecretKey(), { algorithms: ["HS256"] });
-  //   2. if payload.adminId is a string, return { adminId: payload.adminId }
-  //   3. otherwise return null
-  // jwtVerify THROWS if the stamp is wrong or the token has expired.
-  // The catch block should return null.
+  // Outside the try on purpose: a setup mistake should be loud
+  const secretKey = getSecretKey();
+
+  try {
+    const { payload } = await jwtVerify(token, secretKey, {
+      algorithms: ["HS256"],
+    });
+    if (typeof payload.adminId === "string") {
+      return { adminId: payload.adminId };
+    }
+  } catch {
+    // Expired, forged or garbled: all mean "no valid wristband"
+  }
+
   return null;
 }
 
