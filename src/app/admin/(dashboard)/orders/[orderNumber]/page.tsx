@@ -7,14 +7,13 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminOrderDetail } from "@/lib/admin-orders";
 import { formatDateTime, formatNaira } from "@/lib/format";
 import { buildWhatsAppLink, toWhatsAppNumber } from "@/lib/whatsapp";
+import OrderControls from "@/components/admin/OrderControls";
 
 export const metadata = { title: "Order details" };
 
 type OrderDetailPageProps = { params: Promise<{ orderNumber: string }> };
 
-export default function AdminOrderDetailPage({
-  params,
-}: OrderDetailPageProps) {
+export default function AdminOrderDetailPage({ params }: OrderDetailPageProps) {
   return (
     <>
       <Link href="/admin/orders" className="text-sm underline">
@@ -66,6 +65,12 @@ async function OrderDetailContent({ params }: OrderDetailPageProps) {
         </div>
       </div>
 
+      <OrderControls
+        orderNumber={order.orderNumber}
+        status={order.status}
+        paymentStatus={order.paymentStatus}
+      />
+
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <section className="rounded-lg border border-ink/10 p-5">
           <h2 className="font-serif text-xl">Customer</h2>
@@ -91,7 +96,9 @@ async function OrderDetailContent({ params }: OrderDetailPageProps) {
         <section className="rounded-lg border border-ink/10 p-5">
           <h2 className="font-serif text-xl">Delivery</h2>
           <p className="mt-3 whitespace-pre-line">{order.delivery.address}</p>
-          <p className="mt-2 text-sm text-ink/70">Area: {order.delivery.zone}</p>
+          <p className="mt-2 text-sm text-ink/70">
+            Area: {order.delivery.zone}
+          </p>
           {order.notes && (
             <>
               <h3 className="mt-4 text-sm font-medium">Customer notes</h3>

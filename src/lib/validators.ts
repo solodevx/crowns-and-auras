@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { deliveryZones } from "@/config/delivery-zones";
+import { toInternationalPhone } from "@/lib/phone";
 
 // Nigerian mobile numbers: 0 or +234, then 7/8/9, then 0/1, then 8 more digits
 const nigerianPhonePattern = /^(?:0|\+234)[789][01]\d{8}$/;
@@ -18,9 +19,9 @@ export const checkoutSchema = z.object({
     .refine(
       (value) => nigerianPhonePattern.test(value),
       "Enter a valid Nigerian phone number, e.g. 08012345678",
-    ),
+    )
+    .transform(toInternationalPhone), // saved as +234XXXXXXXX
 
-  // Optional: an empty box is fine, but if something is typed it must look like an email
   email: z
     .string()
     .trim()
