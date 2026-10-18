@@ -2,7 +2,7 @@ import { connectToDatabase } from "@/lib/db";
 import { Order } from "@/models/Order";
 
 // The exact format createOrder generates: CA- plus 6 safe characters
-const ORDER_NUMBER_PATTERN = /^CA-[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{6}$/;
+export const ORDER_NUMBER_PATTERN = /^CA-[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{6}$/;
 
 // Only what the confirmation page needs. No phone, no address.
 export type OrderSummary = {

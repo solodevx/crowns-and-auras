@@ -6,3 +6,11 @@ export function formatNaira(amount: number): string {
     maximumFractionDigits: 0,
   }).format(amount);
 }
+export function formatDateTime(isoString: string): string {
+  if (!isoString) return "";
+  return new Intl.DateTimeFormat("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Africa/Lagos",
+  }).format(new Date(isoString));
+}
