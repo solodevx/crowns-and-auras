@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { connectToDatabase } from "@/lib/db";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { createSession } from "@/lib/session";
 import { Admin } from "@/models/Admin";
 
@@ -21,6 +22,15 @@ const dummyHashPromise = bcrypt.hash("not-a-real-password", 12);
 export type LoginResult = { ok: false; message: string };
 
 export async function loginAction(payload: unknown): Promise<LoginResult> {
+  // 8 attempts per 15 minutes per visitor. Checked first, before any real work.
+  const rate = await checkRateLimit("admin-login", 8, 15 * 60);
+  if (!rate.allowed) {
+    return {
+      ok: false,
+      message: "Too many attempts. Please wait a few minutes and try again.",
+    };
+  }
+
   const parsed = loginSchema.safeParse(payload);
   if (!parsed.success) return { ok: false, message: GENERIC_ERROR };
 

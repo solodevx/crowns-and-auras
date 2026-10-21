@@ -6,6 +6,7 @@ import { getDeliveryZone } from "@/config/delivery-zones";
 import { connectToDatabase } from "@/lib/db";
 import { calculateOrderTotals } from "@/lib/order";
 import { priceCart } from "@/lib/price-cart";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { checkoutSchema } from "@/lib/validators";
 import { Order } from "@/models/Order";
 
@@ -51,7 +52,19 @@ function getDuplicateKeyField(error: unknown): string | null {
 }
 
 // "unknown" = we have no idea what this is yet, and must check it
-export async function createOrder(payload: unknown): Promise<CreateOrderResult> {
+export async function createOrder(
+  payload: unknown,
+): Promise<CreateOrderResult> {
+  // Generous on purpose: many customers share one address on mobile networks.
+  // This only stops floods.
+  const rate = await checkRateLimit("create-order", 30, 60 * 60);
+  if (!rate.allowed) {
+    return {
+      ok: false,
+      message: "Too many orders from this connection. Please try again later.",
+    };
+  }
+
   const parsed = submissionSchema.safeParse(payload);
 
   if (!parsed.success) {
