@@ -1,24 +1,28 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Product } from "@/types/product";
 import { formatNaira } from "@/lib/format";
+import { optimizedImageUrl } from "@/lib/image-url";
 import { getStartingPrice, isProductAvailable } from "@/lib/product";
 
 export default function ProductCard({ product }: { product: Product }) {
   const available = isProductAvailable(product);
-  const [firstImage] = product.images; // undefined if there are no images yet
+  const [firstImage] = product.images; // undefined if there are no photos
 
   return (
     <article>
       <Link href={`/shop/${product.slug}`} className="group block">
         <div className="relative aspect-4/5 overflow-hidden rounded-lg bg-ink/5">
           {firstImage ? (
-            <Image
-              src={firstImage}
-              alt={`${product.brand} ${product.name}`}
-              fill
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={optimizedImageUrl(firstImage, 400, 500)}
+              srcSet={`${optimizedImageUrl(firstImage, 400, 500)} 400w, ${optimizedImageUrl(firstImage, 800, 1000)} 800w`}
               sizes="(min-width: 1024px) 25vw, 50vw"
-              className="object-cover transition group-hover:scale-105"
+              alt={`${product.brand} ${product.name}`}
+              width={400}
+              height={500}
+              loading="lazy"
+              className="h-full w-full object-cover transition group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full items-center justify-center p-4 text-center font-serif text-ink/40">
@@ -39,7 +43,9 @@ export default function ProductCard({ product }: { product: Product }) {
         <p className="mt-1 text-xs text-ink/60">
           {product.scentFamilies.join(" · ")}
         </p>
-        <p className="mt-1 text-sm">From {formatNaira(getStartingPrice(product))}</p>
+        <p className="mt-1 text-sm">
+          From {formatNaira(getStartingPrice(product))}
+        </p>
       </Link>
     </article>
   );

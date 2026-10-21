@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import ProductGallery from "@/components/store/ProductGallery";
 import SizePicker from "@/components/store/SizePicker";
 import { getProductBySlug } from "@/lib/products";
 
@@ -22,13 +23,19 @@ async function ProductDetails({ params }: ProductPageProps) {
   if (!product) notFound();
 
   return (
-    <>
-      <p className="text-xs uppercase tracking-widest text-ink/60">
-        {product.brand}
-      </p>
-      <h1 className="font-serif text-3xl">{product.name}</h1>
-      <p className="mt-4 max-w-xl text-ink/70">{product.description}</p>
-      <SizePicker product={product} />
-    </>
+    <div className="grid gap-8 md:grid-cols-2">
+      <ProductGallery
+        images={product.images}
+        label={`${product.brand} ${product.name}`}
+      />
+      <div>
+        <p className="text-xs uppercase tracking-widest text-ink/60">
+          {product.brand}
+        </p>
+        <h1 className="font-serif text-3xl">{product.name}</h1>
+        <p className="mt-4 max-w-xl text-ink/70">{product.description}</p>
+        <SizePicker product={product} />
+      </div>
+    </div>
   );
 }

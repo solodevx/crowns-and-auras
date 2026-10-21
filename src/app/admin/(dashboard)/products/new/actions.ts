@@ -3,10 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { connectToDatabase } from "@/lib/db";
-import {
-  productInputSchema,
-  type ProductFormResult,
-} from "@/lib/product-validators";
+import { parseProductInput } from "@/lib/parse-product-input";
+import type { ProductFormResult } from "@/lib/product-validators";
 import { slugify } from "@/lib/slug";
 import { Product } from "@/models/Product";
 
@@ -15,21 +13,10 @@ export async function createProductAction(
 ): Promise<ProductFormResult> {
   await requireAdmin(); // the lock: always first
 
-  const parsed = productInputSchema.safeParse(payload);
-  if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const field = String(issue.path[0] ?? "form");
-      if (!fieldErrors[field]) fieldErrors[field] = issue.message;
-    }
-    return {
-      ok: false,
-      message: "Please check the highlighted fields.",
-      fieldErrors,
-    };
-  }
+  const checked = parseProductInput(payload);
+  if (!checked.ok) return checked.result;
+  const input = checked.input;
 
-  const input = parsed.data;
   const slug = slugify(`${input.brand} ${input.name}`);
   if (!slug) {
     return {
@@ -46,7 +33,7 @@ export async function createProductAction(
       name: input.name,
       description: input.description,
       scentFamilies: input.scentFamilies,
-      images: [],
+      images: input.images,
       variants: input.variants,
       featured: input.featured,
       isActive: input.isActive,

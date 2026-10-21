@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ImageUploader from "@/components/admin/ImageUploader";
 import { scentFamilies } from "@/config/scents";
 import {
   productInputSchema,
@@ -14,6 +15,7 @@ export type ProductFormValues = {
   brand: string;
   name: string;
   description: string;
+  images: string[];
   scentFamilies: string[];
   variants: VariantValue[];
   featured: boolean;
@@ -30,6 +32,7 @@ const blankValues: ProductFormValues = {
   brand: "",
   name: "",
   description: "",
+  images: [],
   scentFamilies: [],
   variants: [{ size: "", price: "", available: true }],
   featured: false,
@@ -147,7 +150,11 @@ export default function ProductForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="mt-6 max-w-2xl space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+      className="mt-6 max-w-2xl space-y-6"
+    >
       <div>
         <label htmlFor="brand" className="block text-sm font-medium">
           Brand
@@ -180,7 +187,8 @@ export default function ProductForm({
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium">
-          Description <span className="font-normal text-ink/60">(optional)</span>
+          Description{" "}
+          <span className="font-normal text-ink/60">(optional)</span>
         </label>
         <textarea
           id="description"
@@ -188,11 +196,19 @@ export default function ProductForm({
           value={values.description}
           onChange={(event) => setField("description", event.target.value)}
           aria-invalid={errors.description ? true : undefined}
-          aria-describedby={errors.description ? "description-error" : undefined}
+          aria-describedby={
+            errors.description ? "description-error" : undefined
+          }
           className="mt-1 w-full rounded border border-ink/20 bg-white px-3 py-2"
         />
         <FieldError id="description" message={errors.description} />
       </div>
+
+      <ImageUploader
+        images={values.images}
+        onChange={(images) => setField("images", images)}
+        error={errors.images}
+      />
 
       <fieldset>
         <legend className="text-sm font-medium">Scent families</legend>

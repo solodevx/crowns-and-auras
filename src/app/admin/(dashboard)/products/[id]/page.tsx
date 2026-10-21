@@ -38,6 +38,7 @@ async function EditProductContent({ params }: EditProductPageProps) {
     name: product.name,
     description: product.description,
     scentFamilies: product.scentFamilies,
+    images: product.images,
     variants: product.variants.map((variant) => ({
       size: variant.size,
       price: String(variant.price),

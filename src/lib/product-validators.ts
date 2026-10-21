@@ -19,6 +19,9 @@ export const productInputSchema = z.object({
     .string()
     .trim()
     .max(1000, "Keep the description under 1000 characters"),
+  images: z
+    .array(z.string().startsWith("https://res.cloudinary.com/"))
+    .max(5, "At most 5 photos"),
   scentFamilies: z.array(z.enum(scentFamilies)),
   variants: z
     .array(variantSchema)
