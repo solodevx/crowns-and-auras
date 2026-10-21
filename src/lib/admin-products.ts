@@ -20,6 +20,7 @@ type ProductRecord = {
   name?: string | null;
   description?: string | null;
   scentFamilies?: string[] | null;
+  images?: string[] | null;
   variants?: VariantRecord[] | null;
   featured?: boolean | null;
   isActive?: boolean | null;
@@ -78,6 +79,7 @@ export type AdminProductEdit = {
   name: string;
   description: string;
   scentFamilies: string[];
+  images: string[];
   variants: { size: string; price: number; available: boolean }[];
   featured: boolean;
   isActive: boolean;
@@ -91,6 +93,7 @@ function toEdit(record: ProductRecord): AdminProductEdit {
     name: record.name ?? "",
     description: record.description ?? "",
     scentFamilies: record.scentFamilies ?? [],
+    images: record.images ?? [],
     variants: toVariants(record.variants),
     featured: record.featured ?? false,
     isActive: record.isActive ?? true,

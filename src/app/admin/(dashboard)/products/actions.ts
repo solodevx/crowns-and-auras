@@ -5,10 +5,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/admin-auth";
 import { connectToDatabase } from "@/lib/db";
-import {
-  productInputSchema,
-  type ProductFormResult,
-} from "@/lib/product-validators";
+import { parseProductInput } from "@/lib/parse-product-input";
+import type { ProductFormResult } from "@/lib/product-validators";
 import { Product } from "@/models/Product";
 
 export type ProductActionResult = { ok: true } | { ok: false; message: string };
@@ -60,21 +58,9 @@ export async function updateProductAction(
     return { ok: false, message: "Invalid request." };
   }
 
-  const parsed = productInputSchema.safeParse(payload);
-  if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const field = String(issue.path[0] ?? "form");
-      if (!fieldErrors[field]) fieldErrors[field] = issue.message;
-    }
-    return {
-      ok: false,
-      message: "Please check the highlighted fields.",
-      fieldErrors,
-    };
-  }
-
-  const input = parsed.data;
+  const checked = parseProductInput(payload);
+  if (!checked.ok) return checked.result;
+  const input = checked.input;
 
   try {
     await connectToDatabase();
@@ -86,6 +72,7 @@ export async function updateProductAction(
           name: input.name,
           description: input.description,
           scentFamilies: input.scentFamilies,
+          images: input.images,
           variants: input.variants,
           featured: input.featured,
           isActive: input.isActive,
