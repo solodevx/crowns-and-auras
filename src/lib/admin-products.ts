@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { connectToDatabase } from "@/lib/db";
 import { Product as ProductModel } from "@/models/Product";
+import { sortVariantsBySize } from "@/lib/variants";
 
 type VariantRecord = {
   size?: string | null;
@@ -26,11 +27,13 @@ type ProductRecord = {
 };
 
 function toVariants(variants: VariantRecord[] | null | undefined) {
-  return (variants ?? []).map((variant) => ({
-    size: variant.size ?? "",
-    price: variant.price ?? 0,
-    available: variant.available ?? true,
-  }));
+  return sortVariantsBySize(
+    (variants ?? []).map((variant) => ({
+      size: variant.size ?? "",
+      price: variant.price ?? 0,
+      available: variant.available ?? true,
+    })),
+  );
 }
 
 // ── The list ──

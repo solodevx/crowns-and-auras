@@ -50,7 +50,9 @@ async function EditProductContent({ params }: EditProductPageProps) {
   return (
     <>
       <h1 className="mt-4 font-serif text-3xl">Edit {product.name}</h1>
-      <p className="mt-1 text-sm text-ink/60">Shop address: /shop/{product.slug}</p>
+      <p className="mt-1 text-sm text-ink/60">
+        Shop address: /shop/{product.slug}
+      </p>
 
       <ProductForm
         key={product.id}
@@ -67,7 +69,10 @@ async function EditProductContent({ params }: EditProductPageProps) {
           in the shop&rdquo; above instead.
         </p>
         <div className="mt-4">
-          <DeleteProductButton productId={product.id} productName={product.name} />
+          <DeleteProductButton
+            productId={product.id}
+            productName={product.name}
+          />
         </div>
       </section>
     </>

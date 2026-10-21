@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { scentFamilies } from "@/config/scents";
+import { sortVariantsBySize } from "@/lib/variants";
 
 const variantSchema = z.object({
   size: z.string().trim().min(1, "Enter a size, e.g. 50ml").max(30),
@@ -28,7 +29,8 @@ export const productInputSchema = z.object({
         new Set(variants.map((variant) => variant.size.toLowerCase())).size ===
         variants.length,
       "Each size can only be listed once",
-    ),
+    )
+    .transform((variants) => sortVariantsBySize(variants)),
   featured: z.boolean(),
   isActive: z.boolean(),
 });
