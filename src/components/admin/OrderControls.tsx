@@ -110,7 +110,7 @@ export default function OrderControls({
         </div>
       </div>
 
-      <p role="status" className="mt-3 text-sm">
+      <p role="status" className="mt-3 min-h-5 text-sm">
         {isPending ? "Saving…" : ""}
       </p>
       <p role="alert" className="text-sm text-red-700">

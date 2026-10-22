@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createOrder } from "@/app/(store)/checkout/actions";
@@ -56,6 +56,7 @@ export default function CheckoutForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNavigating, startNavigation] = useTransition();
 
   // The "ticket stub" for this order. It is created once and survives redraws,
   // so pressing Place order twice sends the same stub both times.
@@ -107,8 +108,11 @@ export default function CheckoutForm() {
       });
 
       if (response.ok) {
-        router.push(`/order-confirmation/${response.orderNumber}`);
-        return; // keep the button locked while we navigate away
+        startNavigation(() => {
+          router.push(`/order-confirmation/${response.orderNumber}`);
+        });
+        setIsSubmitting(false);
+        return;
       }
 
       if (response.fieldErrors) {
@@ -285,13 +289,13 @@ export default function CheckoutForm() {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isNavigating}
           className="mt-6 h-12 w-full rounded bg-ink px-8 text-sm text-cream disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Placing your order..." : "Place order"}
+          {isSubmitting || isNavigating ? "Placing your order..." : "Place order"}
         </button>
 
-        <p role="alert" className="mt-3 text-sm text-red-700">
+        <p role="alert" className="mt-3 min-h-5 text-sm text-red-700">
           {formError}
         </p>
 

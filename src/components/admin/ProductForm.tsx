@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { scentFamilies } from "@/config/scents";
@@ -61,6 +61,7 @@ export default function ProductForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNavigating, startNavigation] = useTransition();
 
   function setField<Key extends keyof ProductFormValues>(
     key: Key,
@@ -136,9 +137,12 @@ export default function ProductForm({
     try {
       const response = await submitAction(result.data);
       if (response.ok) {
-        router.push("/admin/products");
-        router.refresh();
-        return; // keep the button locked while we move away
+        startNavigation(() => {
+          router.push("/admin/products");
+          router.refresh();
+        });
+        setIsSubmitting(false);
+        return;
       }
       if (response.fieldErrors) setErrors(response.fieldErrors);
       setFormError(response.message);
@@ -333,12 +337,12 @@ export default function ProductForm({
       <div>
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="h-12 rounded bg-ink px-8 text-sm text-cream disabled:opacity-60"
+          disabled={isSubmitting || isNavigating}
+          className="h-12 min-w-44 rounded bg-ink px-8 text-sm text-cream disabled:opacity-60"
         >
-          {isSubmitting ? "Saving..." : submitLabel}
+          {isSubmitting || isNavigating ? "Saving..." : submitLabel}
         </button>
-        <p role="alert" className="mt-3 text-sm text-red-700">
+        <p role="alert" className="mt-3 min-h-5 text-sm text-red-700">
           {formError}
         </p>
       </div>

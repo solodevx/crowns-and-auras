@@ -75,7 +75,7 @@ export default function SizePicker({ product }: { product: Product }) {
         Add to cart
       </button>
 
-      <p role="status" className="mt-3 text-sm">
+      <p role="status" className="mt-3 min-h-5 text-sm">
         {justAdded && (
           <>
             Added to cart.{" "}

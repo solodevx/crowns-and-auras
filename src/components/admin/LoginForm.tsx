@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { loginAction } from "@/app/admin/login/actions";
 
@@ -13,19 +13,26 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // True while the page is moving, and switches itself off when it arrives
+  const [isNavigating, startNavigation] = useTransition();
+  const isBusy = isSubmitting || isNavigating;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isSubmitting) return;
+    if (isBusy) return;
     setErrorMessage("");
     setIsSubmitting(true);
 
     try {
       const result = await loginAction({ email, password });
       if (result.ok) {
-        router.replace("/admin");
-        router.refresh();
-        return; // keep the button locked while the page moves
+        setPassword(""); // never leave a password sitting in a hidden page
+        startNavigation(() => {
+          router.replace("/admin");
+          router.refresh();
+        });
+        setIsSubmitting(false);
+        return;
       }
       setErrorMessage(result.message);
     } catch {
@@ -69,13 +76,13 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isBusy}
         className="h-12 w-full rounded bg-ink text-sm text-cream disabled:opacity-60"
       >
-        {isSubmitting ? "Signing in..." : "Sign in"}
+        {isBusy ? "Signing in..." : "Sign in"}
       </button>
 
-      <p role="alert" className="text-sm text-red-700">
+      <p role="alert" className="min-h-5 text-sm text-red-700">
         {errorMessage}
       </p>
     </form>

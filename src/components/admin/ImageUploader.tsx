@@ -160,7 +160,7 @@ export default function ImageUploader({
         <div className="mt-3">
           <label
             htmlFor="photo-input"
-            className="inline-flex h-11 cursor-pointer items-center rounded border border-ink/30 px-5 text-sm"
+            className="inline-flex h-11 min-w-36 cursor-pointer items-center justify-center rounded border border-ink/30 px-5 text-sm"
           >
             {isUploading ? "Uploading…" : "Add photos"}
           </label>
@@ -176,7 +176,7 @@ export default function ImageUploader({
         </div>
       )}
 
-      <p role="status" className="mt-2 text-sm">
+      <p role="status" className="mt-2 min-h-5 text-sm">
         {status}
       </p>
       {(uploadError || error) && (

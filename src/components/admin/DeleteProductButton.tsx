@@ -38,7 +38,7 @@ export default function DeleteProductButton({
         type="button"
         onClick={handleDelete}
         disabled={isPending}
-        className="h-11 rounded border border-red-700 px-5 text-sm text-red-700 disabled:opacity-60"
+        className="h-11 min-w-40 rounded border border-red-700 px-5 text-sm text-red-700 disabled:opacity-60"
       >
         {isPending ? "Deleting…" : "Delete product"}
       </button>

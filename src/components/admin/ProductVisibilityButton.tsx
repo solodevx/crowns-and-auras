@@ -29,7 +29,7 @@ export default function ProductVisibilityButton({
         type="button"
         onClick={toggle}
         disabled={isPending}
-        className="h-11 text-sm underline disabled:opacity-60"
+        className="h-11 min-w-16 text-left text-sm underline disabled:opacity-60"
       >
         {isPending ? "Saving…" : isActive ? "Hide" : "Show"}
       </button>
