@@ -44,7 +44,7 @@ export async function generateMetadata({
 export default function ProductPage({ params }: ProductPageProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 py-12">
-      <Suspense fallback={<p className="text-ink/60">Loading perfume…</p>}>
+      <Suspense fallback={<p className="text-ink/70">Loading perfume…</p>}>
         <ProductDetails params={params} />
       </Suspense>
     </section>
@@ -92,7 +92,7 @@ async function ProductDetails({ params }: ProductPageProps) {
           label={`${product.brand} ${product.name}`}
         />
         <div>
-          <p className="text-xs uppercase tracking-widest text-ink/60">
+          <p className="text-xs uppercase tracking-widest text-ink/70">
             {product.brand}
           </p>
           <h1 className="font-serif text-3xl">{product.name}</h1>

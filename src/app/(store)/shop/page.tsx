@@ -18,7 +18,7 @@ export default function ShopPage({ searchParams }: ShopPageProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="font-serif text-3xl">Shop</h1>
-      <Suspense fallback={<p className="mt-8 text-ink/60">Loading perfumes…</p>}>
+      <Suspense fallback={<p className="mt-8 text-ink/70">Loading perfumes…</p>}>
         <ShopResults searchParams={searchParams} />
       </Suspense>
     </section>
@@ -37,7 +37,7 @@ async function ShopResults({ searchParams }: ShopPageProps) {
       </aside>
 
       <div>
-        <p className="text-sm text-ink/60">
+        <p className="text-sm text-ink/70">
           {products.length} {products.length === 1 ? "perfume" : "perfumes"}
         </p>
 

@@ -13,7 +13,7 @@ export default function NewProductPage() {
         Back to products
       </Link>
       <h1 className="mt-4 font-serif text-3xl">Add product</h1>
-      <Suspense fallback={<p className="mt-6 text-ink/60">Loading…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink/70">Loading…</p>}>
         <NewProductContent />
       </Suspense>
     </>

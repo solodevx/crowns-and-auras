@@ -188,7 +188,7 @@ export default function ProductForm({
       <div>
         <label htmlFor="description" className="block text-sm font-medium">
           Description{" "}
-          <span className="font-normal text-ink/60">(optional)</span>
+          <span className="font-normal text-ink/70">(optional)</span>
         </label>
         <textarea
           id="description"

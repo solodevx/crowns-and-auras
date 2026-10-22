@@ -4,7 +4,15 @@ import { formatNaira } from "@/lib/format";
 import { optimizedImageUrl } from "@/lib/image-url";
 import { getStartingPrice, isProductAvailable } from "@/lib/product";
 
-export default function ProductCard({ product }: { product: Product }) {
+type ProductCardProps = {
+  product: Product;
+  headingLevel?: "h2" | "h3";
+};
+
+export default function ProductCard({
+  product,
+  headingLevel: Heading = "h2",
+}: ProductCardProps) {
   const available = isProductAvailable(product);
   const [firstImage] = product.images; // undefined if there are no photos
 
@@ -22,10 +30,13 @@ export default function ProductCard({ product }: { product: Product }) {
               width={400}
               height={500}
               loading="lazy"
-              className="h-full w-full object-cover transition group-hover:scale-105"
+              className="h-full w-full object-cover transition group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           ) : (
-            <div className="flex h-full items-center justify-center p-4 text-center font-serif text-ink/40">
+            <div
+              aria-hidden="true"
+              className="flex h-full items-center justify-center p-4 text-center font-serif text-ink/40"
+            >
               {product.brand}
             </div>
           )}
@@ -36,11 +47,13 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        <p className="mt-3 text-xs uppercase tracking-widest text-ink/60">
+        <p className="mt-3 text-xs uppercase tracking-widest text-ink/70">
           {product.brand}
         </p>
-        <h2 className="font-serif text-lg leading-snug">{product.name}</h2>
-        <p className="mt-1 text-xs text-ink/60">
+        <Heading className="font-serif text-lg leading-snug">
+          {product.name}
+        </Heading>
+        <p className="mt-1 text-xs text-ink/70">
           {product.scentFamilies.join(" · ")}
         </p>
         <p className="mt-1 text-sm">

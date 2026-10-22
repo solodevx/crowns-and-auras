@@ -18,23 +18,23 @@ export default async function Footer() {
 
         <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm">
           <li>
-            <a href={`https://wa.me/${siteConfig.whatsappNumber}`} className="hover:text-accent">
+            <a href={`https://wa.me/${siteConfig.whatsappNumber}`} className="inline-flex h-11 items-center hover:text-accent">
               WhatsApp
             </a>
           </li>
           <li>
-            <a href={siteConfig.instagramUrl} className="hover:text-accent">
+            <a href={siteConfig.instagramUrl} className="inline-flex h-11 items-center hover:text-accent">
               Instagram
             </a>
           </li>
           <li>
-            <a href={`mailto:${siteConfig.email}`} className="hover:text-accent">
+            <a href={`mailto:${siteConfig.email}`} className="inline-flex h-11 items-center hover:text-accent">
               Email
             </a>
           </li>
         </ul>
 
-        <p className="mt-8 text-xs text-ink/50">
+        <p className="mt-8 text-xs text-ink/70">
           © {year} {siteConfig.name}. Placeholder content. {/* CHANGE 3: {year} instead of new Date()... */}
         </p>
       </div>

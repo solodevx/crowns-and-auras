@@ -19,7 +19,7 @@ export default function AdminOrderDetailPage({ params }: OrderDetailPageProps) {
       <Link href="/admin/orders" className="text-sm underline">
         Back to orders
       </Link>
-      <Suspense fallback={<p className="mt-6 text-ink/60">Loading order…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink/70">Loading order…</p>}>
         <OrderDetailContent params={params} />
       </Suspense>
     </>
@@ -45,7 +45,7 @@ async function OrderDetailContent({ params }: OrderDetailPageProps) {
           <h1 className="font-serif text-3xl tracking-wider">
             {order.orderNumber}
           </h1>
-          <p className="text-sm text-ink/60">
+          <p className="text-sm text-ink/70">
             Placed {formatDateTime(order.createdAt)}
           </p>
         </div>

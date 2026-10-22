@@ -19,7 +19,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
       <Link href="/admin/products" className="text-sm underline">
         Back to products
       </Link>
-      <Suspense fallback={<p className="mt-6 text-ink/60">Loading product…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink/70">Loading product…</p>}>
         <EditProductContent params={params} />
       </Suspense>
     </>
@@ -51,7 +51,7 @@ async function EditProductContent({ params }: EditProductPageProps) {
   return (
     <>
       <h1 className="mt-4 font-serif text-3xl">Edit {product.name}</h1>
-      <p className="mt-1 text-sm text-ink/60">
+      <p className="mt-1 text-sm text-ink/70">
         Shop address: /shop/{product.slug}
       </p>
 

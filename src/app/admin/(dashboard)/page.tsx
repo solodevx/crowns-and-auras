@@ -9,7 +9,7 @@ export default function AdminDashboardPage() {
   return (
     <>
       <h1 className="font-serif text-3xl">Dashboard</h1>
-      <Suspense fallback={<p className="mt-6 text-ink/60">Loading…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink/70">Loading…</p>}>
         <DashboardContent />
       </Suspense>
     </>
@@ -26,14 +26,14 @@ async function DashboardContent() {
         href="/admin/orders?view=open"
         className="rounded-lg border border-ink/10 p-6 hover:bg-ink/5"
       >
-        <p className="text-sm text-ink/60">Open orders</p>
+        <p className="text-sm text-ink/70">Open orders</p>
         <p className="mt-1 font-serif text-4xl">{counts.open}</p>
       </Link>
       <Link
         href="/admin/orders?view=open"
         className="rounded-lg border border-ink/10 p-6 hover:bg-ink/5"
       >
-        <p className="text-sm text-ink/60">Waiting for payment</p>
+        <p className="text-sm text-ink/70">Waiting for payment</p>
         <p className="mt-1 font-serif text-4xl">{counts.awaitingPayment}</p>
       </Link>
     </div>

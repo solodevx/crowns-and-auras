@@ -36,7 +36,7 @@ export default function CartView() {
             className="flex flex-wrap items-center justify-between gap-4 py-4"
           >
             <div>
-              <p className="text-xs uppercase tracking-widest text-ink/60">
+              <p className="text-xs uppercase tracking-widest text-ink/70">
                 {item.brand}
               </p>
               <Link href={`/shop/${item.slug}`} className="font-serif text-lg">
@@ -97,7 +97,7 @@ export default function CartView() {
           <span>Subtotal</span>
           <span>{formatNaira(getCartSubtotal(items))}</span>
         </p>
-        <p className="mt-2 text-sm text-ink/60">
+        <p className="mt-2 text-sm text-ink/70">
           Delivery fee is added at checkout.
         </p>
         <Link

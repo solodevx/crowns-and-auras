@@ -70,7 +70,7 @@ export default function OrderControls({
               >
                 Mark as paid
               </button>
-              <p className="mt-2 text-xs text-ink/60">
+              <p className="mt-2 text-xs text-ink/70">
                 Only after you see the money in your bank app, never from a
                 screenshot alone.
               </p>

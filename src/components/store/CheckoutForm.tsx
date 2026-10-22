@@ -192,7 +192,7 @@ export default function CheckoutForm() {
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium">
-            Email <span className="font-normal text-ink/60">(optional)</span>
+            Email <span className="font-normal text-ink/70">(optional)</span>
           </label>
           <input
             {...fieldProps("email")}
@@ -233,7 +233,7 @@ export default function CheckoutForm() {
 
         <div>
           <label htmlFor="notes" className="block text-sm font-medium">
-            Notes <span className="font-normal text-ink/60">(optional)</span>
+            Notes <span className="font-normal text-ink/70">(optional)</span>
           </label>
           <textarea
             {...fieldProps("notes")}
@@ -278,7 +278,7 @@ export default function CheckoutForm() {
           </div>
         </dl>
 
-        <p className="mt-4 text-sm text-ink/60">
+        <p className="mt-4 text-sm text-ink/70">
           After you place your order, you will get our bank details to pay by
           transfer.
         </p>

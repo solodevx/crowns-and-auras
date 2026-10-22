@@ -19,7 +19,7 @@ export default function AdminProductsPage() {
           Add product
         </Link>
       </div>
-      <Suspense fallback={<p className="mt-6 text-ink/60">Loading products…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink/70">Loading products…</p>}>
         <ProductsContent />
       </Suspense>
     </>
@@ -40,7 +40,7 @@ async function ProductsContent() {
         <li
           key={product.id}
           className={`flex flex-wrap items-center justify-between gap-3 p-4 ${
-            product.isActive ? "" : "bg-ink/5 text-ink/60"
+            product.isActive ? "" : "bg-ink/5 text-ink/70"
           }`}
         >
           <div>

@@ -24,7 +24,7 @@ export default function AdminOrdersPage({ searchParams }: OrdersPageProps) {
   return (
     <>
       <h1 className="font-serif text-3xl">Orders</h1>
-      <Suspense fallback={<p className="mt-6 text-ink/60">Loading orders…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink/70">Loading orders…</p>}>
         <OrdersContent searchParams={searchParams} />
       </Suspense>
     </>
@@ -72,7 +72,7 @@ async function OrdersContent({ searchParams }: OrdersPageProps) {
                     {order.customerName} · {order.itemCount}{" "}
                     {order.itemCount === 1 ? "item" : "items"}
                   </p>
-                  <p className="text-xs text-ink/50">
+                  <p className="text-xs text-ink/70">
                     {formatDateTime(order.createdAt)}
                   </p>
                 </div>

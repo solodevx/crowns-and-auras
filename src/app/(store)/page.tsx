@@ -22,7 +22,7 @@ async function FeaturedProducts() {
   return (
     <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-3">
       {featuredProducts.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} headingLevel="h3" />
       ))}
     </div>
   );
@@ -67,7 +67,7 @@ export default function HomePage() {
             View all
           </Link>
         </div>
-        <Suspense fallback={<p className="mt-6 text-ink/60">Loading…</p>}>
+        <Suspense fallback={<p className="mt-6 text-ink/70">Loading…</p>}>
           <FeaturedProducts />
         </Suspense>
       </section>

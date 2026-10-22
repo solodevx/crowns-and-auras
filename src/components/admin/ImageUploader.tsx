@@ -116,7 +116,7 @@ export default function ImageUploader({
     <fieldset>
       <legend className="text-sm font-medium">
         Photos{" "}
-        <span className="font-normal text-ink/60">
+        <span className="font-normal text-ink/70">
           (first one is the main photo)
         </span>
       </legend>

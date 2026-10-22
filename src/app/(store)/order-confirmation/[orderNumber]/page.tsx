@@ -22,7 +22,7 @@ export default function OrderConfirmationPage({
 }: OrderConfirmationProps) {
   return (
     <section className="mx-auto max-w-2xl px-4 py-16">
-      <Suspense fallback={<p className="text-ink/60">Loading your order…</p>}>
+      <Suspense fallback={<p className="text-ink/70">Loading your order…</p>}>
         <OrderDetails params={params} />
       </Suspense>
     </section>
@@ -79,7 +79,7 @@ async function OrderDetails({ params }: OrderConfirmationProps) {
         >
           Send payment proof on WhatsApp (opens WhatsApp)
         </a>
-        <p className="mt-3 text-sm text-ink/60">
+        <p className="mt-3 text-sm text-ink/70">
           We confirm your order once we see your payment.
         </p>
       </div>
