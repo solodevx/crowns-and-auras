@@ -1,6 +1,6 @@
 import CheckoutForm from "@/components/store/CheckoutForm";
 
-export const metadata = { title: "Checkout" };
+export const metadata = { title: "Checkout", robots: { index: false } };
 
 export default function CheckoutPage() {
   return (

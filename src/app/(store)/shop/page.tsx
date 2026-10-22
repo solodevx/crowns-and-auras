@@ -10,7 +10,7 @@ import {
 } from "@/lib/filter-products";
 import { getProducts } from "@/lib/products";
 
-export const metadata = { title: "Shop" };
+export const metadata = { title: "Shop", description: "Browse designer and niche perfumes by brand and scent family. Order online with delivery across Lagos." };
 
 type ShopPageProps = { searchParams: Promise<SearchParams> };
 

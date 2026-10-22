@@ -17,3 +17,14 @@
     @apply outline-2 outline-offset-2 outline-accent;
   }
 }
+/* Tailwind v4 no longer shows the hand cursor on buttons, so we restore it */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  select:not(:disabled),
+  summary,
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

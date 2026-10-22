@@ -1,6 +1,6 @@
 import CartView from "@/components/store/CartView";
 
-export const metadata = { title: "Your cart" };
+export const metadata = { title: "Your cart", robots: { index: false } };
 
 export default function CartPage() {
   return (

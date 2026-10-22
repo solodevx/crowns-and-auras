@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
+import { siteUrl } from "@/config/site-url";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -15,8 +16,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: { default: siteConfig.name, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    locale: "en_NG",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({
