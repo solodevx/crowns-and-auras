@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { loginAction } from "@/app/admin/login/actions";
 
 const inputClassName =
   "mt-1 h-11 w-full rounded border border-ink/20 bg-white px-3";
 
 export default function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -20,15 +22,17 @@ export default function LoginForm() {
 
     try {
       const result = await loginAction({ email, password });
-      // On success the server redirects us away, so we only land here on failure
-      if (result && !result.ok) {
-        setErrorMessage(result.message);
-        setIsSubmitting(false);
+      if (result.ok) {
+        router.replace("/admin");
+        router.refresh();
+        return; // keep the button locked while the page moves
       }
+      setErrorMessage(result.message);
     } catch {
       setErrorMessage("Could not reach the server. Try again.");
-      setIsSubmitting(false);
     }
+
+    setIsSubmitting(false);
   }
 
   return (

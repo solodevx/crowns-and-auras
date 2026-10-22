@@ -1,7 +1,6 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { connectToDatabase } from "@/lib/db";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -19,7 +18,7 @@ const GENERIC_ERROR = "Incorrect email or password.";
 // unknown email takes as long to reject as a wrong password does.
 const dummyHashPromise = bcrypt.hash("not-a-real-password", 12);
 
-export type LoginResult = { ok: false; message: string };
+export type LoginResult = { ok: true } | { ok: false; message: string };
 
 export async function loginAction(payload: unknown): Promise<LoginResult> {
   // 8 attempts per 15 minutes per visitor. Checked first, before any real work.
@@ -37,23 +36,21 @@ export async function loginAction(payload: unknown): Promise<LoginResult> {
   const email = parsed.data.email.toLowerCase();
   const { password } = parsed.data;
 
-  let adminId: string | null = null;
-
   try {
     await connectToDatabase();
     const admin = await Admin.findOne({ email });
     const hashToCheck = admin ? admin.passwordHash : await dummyHashPromise;
     const passwordMatches = await bcrypt.compare(password, hashToCheck);
-    if (admin && passwordMatches) adminId = admin._id.toString();
+
+    if (!admin || !passwordMatches)
+      return { ok: false, message: GENERIC_ERROR };
+
+    await createSession(admin._id.toString());
   } catch (error) {
     console.error("login failed:", error);
     return { ok: false, message: "Something went wrong. Please try again." };
   }
 
-  if (!adminId) return { ok: false, message: GENERIC_ERROR };
-
-  // redirect() works by throwing a special signal, so it must stay OUTSIDE
-  // the try/catch above, or the catch would swallow it.
-  await createSession(adminId);
-  redirect("/admin");
+  // The form moves the page. No redirect here.
+  return { ok: true };
 }
