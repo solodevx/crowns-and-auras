@@ -12,8 +12,8 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
   // Close on Escape, but only listen while the menu is open
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -23,28 +23,32 @@ export default function MobileMenu({ links }: { links: NavLink[] }) {
     <div className="md:hidden">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen((current) => !current)}
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
         aria-controls="mobile-menu"
-        className="inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-ink/5"
+        className="inline-flex h-11 w-11 items-center justify-center hover:text-accent"
       >
-        {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+        {open ? (
+          <X className="h-5 w-5" aria-hidden="true" />
+        ) : (
+          <Menu className="h-5 w-5" aria-hidden="true" />
+        )}
       </button>
 
       {open && (
         <nav
           id="mobile-menu"
           aria-label="Mobile"
-          className="absolute inset-x-0 top-full border-b border-ink/10 bg-cream px-4 py-4"
+          className="absolute inset-x-0 top-full border-b border-gold/40 bg-cream px-4 py-3 shadow-md"
         >
-          <ul className="flex flex-col">
+          <ul>
             {links.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="block py-3 text-lg"
+                  className="flex h-12 items-center text-sm uppercase tracking-[0.2em] hover:text-accent"
                 >
                   {link.label}
                 </Link>

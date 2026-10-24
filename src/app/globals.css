@@ -1,10 +1,13 @@
 @import "tailwindcss";
 
-/* PLACEHOLDER brand tokens: rebrand by editing these 3 lines */
+/* Brand palette. Rebrand by editing these lines. */
 @theme {
-  --color-cream: #faf7f2;
-  --color-ink: #1c1917;
-  --color-accent: #7a3e5c;
+  --color-cream: #f6f1e8; /* page background */
+  --color-ink: #3b1c5a; /* deep plum: text, structure, dark bands, main buttons */
+  --color-gold: #e6b44c; /* accents: lines, ornaments, badges */
+  --color-lavender: #c6b7e2; /* soft cards and tints */
+  --color-blush: #ebe5f2; /* a very light lavender tint, for quiet sections */
+  --color-accent: #6b3fa0; /* lighter plum: hover and link states */
 }
 
 @theme inline {
@@ -16,15 +19,30 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-accent;
   }
-}
-/* Tailwind v4 no longer shows the hand cursor on buttons, so we restore it */
-@layer base {
-  button:not(:disabled),
-  [role="button"]:not(:disabled),
-  select:not(:disabled),
-  summary,
-  input[type="checkbox"]:not(:disabled),
-  input[type="radio"]:not(:disabled) {
-    cursor: pointer;
+
+  /* On dark plum areas the focus ring turns cream so it stays visible */
+  .bg-ink :focus-visible {
+    outline-color: var(--color-cream);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-cream);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
 }
