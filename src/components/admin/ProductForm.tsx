@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
-import { scentFamilies } from "@/config/scents";
+import { getScentName, scentFamilies } from "@/config/scents";
 import {
   productInputSchema,
   type ProductFormResult,
@@ -227,7 +227,7 @@ export default function ProductForm({
                 checked={values.scentFamilies.includes(scent)}
                 onChange={() => toggleScent(scent)}
               />
-              {scent}
+              {getScentName(scent)}
             </label>
           ))}
         </div>

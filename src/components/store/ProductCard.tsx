@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getScentName } from "@/config/scents";
 import type { Product } from "@/types/product";
 import { formatNaira } from "@/lib/format";
 import { optimizedImageUrl } from "@/lib/image-url";
@@ -54,7 +55,7 @@ export default function ProductCard({
           {product.name}
         </Heading>
         <p className="mt-1 text-xs text-ink/70">
-          {product.scentFamilies.join(" · ")}
+          {product.scentFamilies.map(getScentName).join(" · ")}
         </p>
         <p className="mt-1 text-sm">
           From {formatNaira(getStartingPrice(product))}

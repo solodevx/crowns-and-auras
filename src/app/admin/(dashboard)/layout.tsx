@@ -20,6 +20,9 @@ export default function AdminDashboardLayout({
             <Link href="/admin/products" className="hover:underline">
               Products
             </Link>
+            <Link href="/admin/brands" className="hover:underline">
+              Brands
+            </Link>
           </nav>
           <form action={logoutAction}>
             <button type="submit" className="h-11 px-2 text-sm underline">

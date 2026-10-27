@@ -8,6 +8,11 @@ import type { ProductFormResult } from "@/lib/product-validators";
 import { slugify } from "@/lib/slug";
 import { Product } from "@/models/Product";
 
+const duplicateResult: ProductFormResult = {
+  ok: false,
+  message: "A perfume with this brand and name already exists.",
+};
+
 export async function createProductAction(
   payload: unknown,
 ): Promise<ProductFormResult> {
@@ -27,8 +32,16 @@ export async function createProductAction(
 
   try {
     await connectToDatabase();
+
+    // The address must not be in use now, or be an old address of another perfume
+    const taken = await Product.exists({
+      $or: [{ slug }, { previousSlugs: slug }],
+    });
+    if (taken) return duplicateResult;
+
     await Product.create({
       slug,
+      previousSlugs: [],
       brand: input.brand,
       name: input.name,
       description: input.description,
@@ -41,12 +54,7 @@ export async function createProductAction(
   } catch (error) {
     // 11000 = the database says "that must be unique, and it already exists"
     if (typeof error === "object" && error !== null && "code" in error) {
-      if (error.code === 11000) {
-        return {
-          ok: false,
-          message: "A perfume with this brand and name already exists.",
-        };
-      }
+      if (error.code === 11000) return duplicateResult;
     }
     console.error("create product failed:", error);
     return { ok: false, message: "Something went wrong. Please try again." };

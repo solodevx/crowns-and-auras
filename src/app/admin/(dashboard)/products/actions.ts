@@ -6,7 +6,9 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/admin-auth";
 import { connectToDatabase } from "@/lib/db";
 import { parseProductInput } from "@/lib/parse-product-input";
+import { buildUniqueProductSlug, rememberOldSlug } from "@/lib/product-slug";
 import type { ProductFormResult } from "@/lib/product-validators";
+import { slugify } from "@/lib/slug";
 import { Product } from "@/models/Product";
 
 export type ProductActionResult = { ok: true } | { ok: false; message: string };
@@ -47,7 +49,8 @@ export async function setProductVisibilityAction(
   return { ok: true };
 }
 
-// The shop address (slug) stays the same on edit, so existing links never break.
+// The web address follows the brand name and the perfume name.
+// The old address is remembered, so old links redirect to the new one.
 export async function updateProductAction(
   productId: string,
   payload: unknown,
@@ -62,12 +65,39 @@ export async function updateProductAction(
   if (!checked.ok) return checked.result;
   const input = checked.input;
 
+  if (!slugify(`${input.brand} ${input.name}`)) {
+    return {
+      ok: false,
+      message: "Enter a brand and name using letters or numbers.",
+    };
+  }
+  const productObjectId = new mongoose.Types.ObjectId(productId);
+
   try {
     await connectToDatabase();
-    const result = await Product.updateOne(
-      { _id: productId },
+
+    const existing = await Product.findById(productObjectId, {
+      slug: 1,
+      previousSlugs: 1,
+    }).lean();
+    if (!existing) return { ok: false, message: "Product not found." };
+
+    const newSlug = await buildUniqueProductSlug(
+      input.brand,
+      input.name,
+      productObjectId,
+    );
+
+    await Product.updateOne(
+      { _id: productObjectId },
       {
         $set: {
+          slug: newSlug,
+          previousSlugs: rememberOldSlug(
+            existing.previousSlugs,
+            existing.slug,
+            newSlug,
+          ),
           brand: input.brand,
           name: input.name,
           description: input.description,
@@ -79,9 +109,6 @@ export async function updateProductAction(
         },
       },
     );
-    if (result.matchedCount === 0) {
-      return { ok: false, message: "Product not found." };
-    }
   } catch (error) {
     console.error("update product failed:", error);
     return { ok: false, message: "Something went wrong. Please try again." };

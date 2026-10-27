@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import ProductGallery from "@/components/store/ProductGallery";
 import SizePicker from "@/components/store/SizePicker";
 import { siteConfig } from "@/config/site";
 import { optimizedImageUrl } from "@/lib/image-url";
-import { getProductBySlug } from "@/lib/products";
+import { getCurrentSlugForOldAddress, getProductBySlug } from "@/lib/products";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
 
@@ -21,8 +21,7 @@ export async function generateMetadata({
 
   const title = `${product.brand} ${product.name}`;
   const description = (
-    product.description ||
-    `${title} from ${siteConfig.name}. Delivery across Lagos.`
+    product.description || `${title} from ${siteConfig.name}. Delivery across Lagos.`
   ).slice(0, 160);
   const image = product.images[0]
     ? optimizedImageUrl(product.images[0], 1200, 630)
@@ -55,7 +54,14 @@ async function ProductDetails({ params }: ProductPageProps) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
 
-  if (!product) notFound();
+  if (!product) {
+    // An old address? Send the visitor to the perfume's current address.
+    const currentSlug = await getCurrentSlugForOldAddress(slug);
+    if (currentSlug && currentSlug !== slug) {
+      permanentRedirect(`/shop/${currentSlug}`);
+    }
+    notFound();
+  }
 
   const prices = product.variants.map((variant) => variant.price);
   const jsonLd = {

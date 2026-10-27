@@ -1,84 +1,53 @@
 import Link from "next/link";
-import type { ScentFamily } from "@/config/scents";
+import { scentCategories, scentFamilies } from "@/config/scents";
 import SectionHeading from "./SectionHeading";
-
-type Collection = {
-  scent: ScentFamily;
-  title: string;
-  tagline: string;
-  image: string;
-  className: string;
-  overlay: string;
-};
-
-// PLACEHOLDER wording. Photos go in public/collections/ with these file names.
-const collections: Collection[] = [
-  {
-    scent: "Floral",
-    title: "Floral Bouquets",
-    tagline: "Soft. Romantic. Timeless.",
-    image: "/collections/floral.jpg",
-    className: "bg-ink text-cream",
-    overlay: "from-ink/85 via-ink/45",
-  },
-  {
-    scent: "Oriental",
-    title: "Warm & Sensual",
-    tagline: "Rich. Alluring. Addictive.",
-    image: "/collections/warm.jpg",
-    className: "bg-lavender text-ink",
-    overlay: "from-lavender/90 via-lavender/50",
-  },
-  {
-    scent: "Fresh",
-    title: "Fresh & Radiant",
-    tagline: "Light. Elegant. Uplifting.",
-    image: "/collections/fresh.jpg",
-    className: "bg-ink text-cream",
-    overlay: "from-ink/85 via-ink/45",
-  },
-  {
-    scent: "Woody",
-    title: "Woody & Deep",
-    tagline: "Calm. Grounded. Lasting.",
-    image: "/collections/woody.jpg",
-    className: "bg-gold text-ink",
-    overlay: "from-gold/90 via-gold/50",
-  },
-];
 
 export default function CollectionCards() {
   return (
     <section id="scents" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-14">
-      <SectionHeading title="Shop by collection" />
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {collections.map((collection) => (
-          <li key={collection.scent}>
-            <Link
-              href={`/shop?scent=${collection.scent}`}
-              className={`relative flex min-h-52 flex-col justify-between overflow-hidden rounded-sm p-5 ${collection.className}`}
-              style={{
-                backgroundImage: `url(${collection.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center right",
-              }}
-            >
-              <span
-                aria-hidden="true"
-                className={`absolute inset-0 bg-linear-to-r ${collection.overlay} to-transparent`}
-              />
-              <span className="relative">
-                <span className="block font-serif text-xl uppercase tracking-wider">
-                  {collection.title}
+      <SectionHeading title="Shop by scent" />
+      <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {scentFamilies.map((slug) => {
+          const category = scentCategories[slug];
+          const textClass =
+            category.text === "light" ? "text-cream" : "text-ink";
+
+          return (
+            <li key={slug}>
+              <Link
+                href={`/shop?scent=${slug}`}
+                aria-label={`Shop ${category.name}. ${category.tagline}`}
+                className={`relative flex min-h-44 flex-col justify-between overflow-hidden rounded-sm p-4 sm:min-h-56 sm:p-5 ${textClass}`}
+                style={{
+                  backgroundColor: category.color,
+                  backgroundImage: `url(${category.photo})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                {/* Keeps the name readable on top of any photo */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, color-mix(in srgb, ${category.color} 92%, transparent) 0%, color-mix(in srgb, ${category.color} 60%, transparent) 55%, transparent 100%)`,
+                  }}
+                />
+                <span className="relative">
+                  <span className="block font-serif text-base uppercase tracking-wider sm:text-xl">
+                    {category.name}
+                  </span>
+                  <span className="mt-1 block text-[11px] sm:text-xs">
+                    {category.tagline}
+                  </span>
                 </span>
-                <span className="mt-1 block text-xs">{collection.tagline}</span>
-              </span>
-              <span className="relative mt-6 inline-flex h-9 w-fit items-center border border-current px-4 text-[11px] uppercase tracking-[0.2em]">
-                Shop now
-              </span>
-            </Link>
-          </li>
-        ))}
+                <span className="relative mt-4 inline-flex h-9 w-fit items-center border border-current px-3 text-[11px] uppercase tracking-[0.2em] sm:px-4">
+                  Shop now
+                </span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

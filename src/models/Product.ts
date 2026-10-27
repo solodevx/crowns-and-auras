@@ -13,7 +13,17 @@ const variantSchema = new Schema(
 
 const productSchema = new Schema(
   {
-    slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    // Old web addresses of this perfume, so old links can redirect to the new one
+    previousSlugs: { type: [String], default: [], index: true },
+    // The brand's record is the source of truth. "brand" is a copy of its name.
+    brandId: { type: Schema.Types.ObjectId, ref: "Brand", index: true },
     brand: { type: String, required: true, trim: true },
     name: { type: String, required: true, trim: true },
     description: { type: String, default: "", trim: true },

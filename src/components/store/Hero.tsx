@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getScentName } from "@/config/scents";
 import { siteConfig } from "@/config/site";
 import { getFeaturedProducts } from "@/lib/products";
 
@@ -11,24 +12,24 @@ const facts = [
   "Delivery across Lagos",
 ];
 
-// The vertical list on the photo: the first featured perfume's scent families.
+// The vertical list on the right: the first featured perfume's scent families.
 async function HeroNotes() {
   const [product] = await getFeaturedProducts();
   if (!product || product.scentFamilies.length === 0) return null;
 
   return (
-    <div className="absolute right-8 top-1/2 hidden -translate-y-1/2 text-cream md:block lg:right-12">
-      <ol className="relative space-y-8 border-l border-cream/40 pl-7">
+    <div className="absolute right-4 top-1/2 hidden -translate-y-1/2 md:block">
+      <ol className="relative space-y-8 border-l border-cream/50 pl-7">
         {product.scentFamilies.slice(0, 3).map((family) => (
           <li key={family} className="relative">
             <span
               aria-hidden="true"
               className="absolute -left-9.25 top-0.5 h-4 w-4 rounded-full border border-cream bg-ink"
             />
-            <p className="text-[10px] uppercase tracking-[0.25em] text-cream/75">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-cream/80">
               Scent
             </p>
-            <p className="text-sm">{family}</p>
+            <p className="text-sm">{getScentName(family)}</p>
           </li>
         ))}
       </ol>
@@ -45,56 +46,62 @@ async function HeroNotes() {
 
 export default function Hero() {
   return (
-    <section className="mx-auto max-w-6xl px-3 pt-3 md:px-4">
-      <div className="grid overflow-hidden border border-gold/50 md:grid-cols-[1.05fr_1fr]">
-        <div className="flex flex-col justify-between gap-12 bg-cream p-6 md:min-h-160 md:p-12">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.3em]">Perfumes</p>
-            <h1 className="mt-6 font-serif text-5xl font-normal leading-[1.05] md:text-7xl">
-              Find a scent that feels like you.
-            </h1>
-            <p className="mt-4 font-serif text-xl md:text-2xl">
-              Fragrances for <em>every</em> mood.
-            </p>
-            <p className="mt-6 max-w-sm text-sm text-ink/80">
-              {siteConfig.description}
-            </p>
-            <Link
-              href="/shop"
-              className="mt-10 flex h-11 w-64 items-center justify-between border-b border-ink text-xs uppercase tracking-[0.25em] hover:text-accent"
+    <section
+      className="relative flex min-h-[max(34rem,75svh)] w-full overflow-hidden text-cream"
+      style={{
+        // Drop your photo at public/hero.jpg. Until then the gradient shows.
+        backgroundImage:
+          "url(/images/hero.webp), linear-gradient(160deg, color-mix(in srgb, var(--color-ink) 80%, black) 0%, var(--color-ink) 55%, color-mix(in srgb, var(--color-ink) 55%, var(--color-gold)) 130%)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Keeps the text readable whatever the photo looks like */}
+      <div aria-hidden="true" className="absolute inset-0 bg-ink/20" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-ink/55 md:hidden"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 hidden bg-linear-to-r from-ink/90 via-ink/55 to-ink/5 md:block"
+      />
+
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col justify-between gap-12 px-4 py-12 md:py-16">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.3em]">Perfumes</p>
+          <h1 className="mt-6 max-w-xl font-serif text-5xl font-normal leading-[1.05] md:text-7xl">
+            Find a scent that feels like you.
+          </h1>
+          <p className="mt-4 font-serif text-xl md:text-2xl">
+            Fragrances for <em>every</em> mood.
+          </p>
+          <p className="mt-6 max-w-sm text-sm text-cream/90">
+            {siteConfig.description}
+          </p>
+          <Link
+            href="/shop"
+            className="mt-10 flex h-11 w-64 items-center justify-between border-b border-cream text-xs uppercase tracking-[0.25em] hover:text-gold"
+          >
+            Discover the scent
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+
+        <ul className="flex flex-wrap gap-y-3 text-[11px] uppercase tracking-widest">
+          {facts.map((fact, index) => (
+            <li
+              key={fact}
+              className={index === 0 ? "pr-4" : "border-l border-cream/40 px-4"}
             >
-              Discover the scent
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </div>
+              {fact}
+            </li>
+          ))}
+        </ul>
 
-          <ul className="flex flex-wrap gap-y-3 text-[11px] uppercase tracking-widest">
-            {facts.map((fact, index) => (
-              <li
-                key={fact}
-                className={index === 0 ? "pr-4" : "border-l border-ink/30 px-4"}
-              >
-                {fact}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div
-          className="relative min-h-72 md:min-h-0"
-          style={{
-            // Drop your photo at public/hero.jpg. Until then the gradient shows.
-            backgroundImage:
-              "url(/hero.jpg), linear-gradient(160deg, color-mix(in srgb, var(--color-ink) 80%, black) 0%, var(--color-ink) 55%, color-mix(in srgb, var(--color-ink) 55%, var(--color-gold)) 130%)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div aria-hidden="true" className="absolute inset-0 bg-ink/25" />
-          <Suspense fallback={null}>
-            <HeroNotes />
-          </Suspense>
-        </div>
+        <Suspense fallback={null}>
+          <HeroNotes />
+        </Suspense>
       </div>
     </section>
   );

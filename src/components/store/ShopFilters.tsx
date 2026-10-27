@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { scentFamilies } from "@/config/scents";
+import { getScentName, scentFamilies } from "@/config/scents";
 import type { ProductFilters } from "@/lib/filter-products";
 
 type ShopFiltersProps = { brands: string[]; filters: ProductFilters };
@@ -54,7 +54,7 @@ export default function ShopFilters({ brands, filters }: ShopFiltersProps) {
                 value={scent}
                 defaultChecked={filters.scents.includes(scent)}
               />
-              {scent}
+              {getScentName(scent)}
             </label>
           ))}
         </div>

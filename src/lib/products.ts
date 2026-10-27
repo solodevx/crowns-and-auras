@@ -80,3 +80,15 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   const record = await ProductModel.findOne({ slug, isActive: true }).lean();
   return record ? toProduct(record) : null;
 }
+// For an old web address: the perfume's current address, or null if none.
+export async function getCurrentSlugForOldAddress(
+  oldSlug: string,
+): Promise<string | null> {
+  await connection();
+  await connectToDatabase();
+  const record = await ProductModel.findOne(
+    { previousSlugs: oldSlug, isActive: true },
+    { slug: 1 },
+  ).lean();
+  return record?.slug ?? null;
+}

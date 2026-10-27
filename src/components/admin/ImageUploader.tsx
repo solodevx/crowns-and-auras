@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { getUploadSignatureAction } from "@/app/admin/(dashboard)/products/upload-actions";
 
-const MAX_IMAGES = 5;
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 type ImageUploaderProps = {
   images: string[];
   onChange: (images: string[]) => void;
   error?: string;
+  max?: number;
+  legend?: string;
+  itemLabel?: string;
 };
 
 // A small version of a Cloudinary photo, for previews
@@ -52,6 +54,9 @@ export default function ImageUploader({
   images,
   onChange,
   error,
+  max = 5,
+  legend = "Photos",
+  itemLabel = "Product photo",
 }: ImageUploaderProps) {
   const [status, setStatus] = useState("");
   const [uploadError, setUploadError] = useState("");
@@ -65,10 +70,10 @@ export default function ImageUploader({
 
     setUploadError("");
 
-    const room = MAX_IMAGES - images.length;
+    const room = max - images.length;
     if (files.length > room) {
       setUploadError(
-        `You can add ${room} more photo${room === 1 ? "" : "s"} (max ${MAX_IMAGES}).`,
+        `You can add ${room} more image${room === 1 ? "" : "s"} (max ${max}).`,
       );
       return;
     }
@@ -115,10 +120,13 @@ export default function ImageUploader({
   return (
     <fieldset>
       <legend className="text-sm font-medium">
-        Photos{" "}
-        <span className="font-normal text-ink/70">
-          (first one is the main photo)
-        </span>
+        {legend}
+        {max > 1 && (
+          <span className="font-normal text-ink/70">
+            {" "}
+            (first one is the main photo)
+          </span>
+        )}
       </legend>
 
       {images.length > 0 && (
@@ -128,21 +136,22 @@ export default function ImageUploader({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={thumbnailUrl(url)}
-                alt={`Product photo ${index + 1}`}
+                alt={`${itemLabel} ${index + 1}`}
                 className="aspect-4/5 w-full rounded object-cover"
               />
-              {index === 0 ? (
-                <p className="mt-1 text-xs font-medium">Main photo</p>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => makeMain(index)}
-                  disabled={isUploading}
-                  className="mt-1 block h-8 text-xs underline disabled:opacity-40"
-                >
-                  Make main
-                </button>
-              )}
+              {max > 1 &&
+                (index === 0 ? (
+                  <p className="mt-1 text-xs font-medium">Main photo</p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => makeMain(index)}
+                    disabled={isUploading}
+                    className="mt-1 block h-8 text-xs underline disabled:opacity-40"
+                  >
+                    Make main
+                  </button>
+                ))}
               <button
                 type="button"
                 onClick={() => removeImage(index)}
@@ -156,19 +165,23 @@ export default function ImageUploader({
         </ul>
       )}
 
-      {images.length < MAX_IMAGES && (
+      {images.length < max && (
         <div className="mt-3">
           <label
             htmlFor="photo-input"
             className="inline-flex h-11 min-w-36 cursor-pointer items-center justify-center rounded border border-ink/30 px-5 text-sm"
           >
-            {isUploading ? "Uploading…" : "Add photos"}
+            {isUploading
+              ? "Uploading…"
+              : max === 1
+                ? "Add image"
+                : "Add photos"}
           </label>
           <input
             id="photo-input"
             type="file"
             accept="image/*"
-            multiple
+            multiple={max > 1}
             disabled={isUploading}
             onChange={handleFiles}
             className="sr-only"
