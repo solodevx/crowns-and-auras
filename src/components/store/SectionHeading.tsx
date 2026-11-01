@@ -1,7 +1,7 @@
 export default function SectionHeading({ title }: { title: string }) {
   return (
     <div className="text-center">
-      <h2 className="font-serif text-lg uppercase tracking-[0.25em] md:text-xl">
+      <h2 className="font-serif text-xl uppercase tracking-[0.25em] md:text-2xl">
         {title}
       </h2>
       <div

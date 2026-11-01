@@ -68,14 +68,14 @@ export default function CollectionCards() {
                   <span className="block wrap-break-word font-serif text-xs uppercase leading-snug tracking-wider sm:text-sm lg:text-base">
                     {category.name}
                   </span>
-                  <span className="mt-1 block text-[10px] leading-snug sm:text-[11px]">
+                  <span className="mt-1 block text-[0.625rem] leading-snug sm:text-[0.6875rem]">
                     {category.tagline}
                   </span>
                 </span>
 
                 {/* Transparent outline button. On hover it gets a faint wash of its
                     own colour, and the text and border never change colour. */}
-                <span className="relative inline-flex h-8 w-fit items-center border border-current px-3 text-[10px] uppercase tracking-[0.18em] transition-colors duration-300 group-hover:bg-[color-mix(in_srgb,currentColor_16%,transparent)] motion-reduce:transition-none">
+                <span className="relative inline-flex h-8 w-fit items-center border border-current px-3 text-[0.625rem] uppercase tracking-[0.18em] transition-colors duration-300 group-hover:bg-[color-mix(in_srgb,currentColor_16%,transparent)] motion-reduce:transition-none">
                   Shop now
                 </span>
               </Link>

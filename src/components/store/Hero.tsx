@@ -1,107 +1,80 @@
-import { Suspense } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { getScentName } from "@/config/scents";
+import { Flower2, Landmark, MessageCircle, Truck } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { getFeaturedProducts } from "@/lib/products";
 
-// PLACEHOLDER copy
-const facts = [
-  "Browse by scent",
-  "Pay by bank transfer",
-  "Delivery across Lagos",
+// Tune the purple here.
+const PURPLE_LEFT = 92; // how dark it is at the far left (0 to 100)
+const PURPLE_MIDDLE = 55; // how dark it is about a third of the way across
+const PURPLE_REACH = 60; // how far across it reaches, in % of the width. The rest is your picture
+
+// Only things that are true of the shop today
+const trustPoints = [
+  { icon: Flower2, label: "Browse by scent" },
+  { icon: Landmark, label: "Pay by bank transfer" },
+  { icon: Truck, label: "Delivery across Lagos" },
+  { icon: MessageCircle, label: "Help on WhatsApp" },
 ];
-
-// The vertical list on the right: the first featured perfume's scent families.
-async function HeroNotes() {
-  const [product] = await getFeaturedProducts();
-  if (!product || product.scentFamilies.length === 0) return null;
-
-  return (
-    <div className="absolute right-4 top-1/2 hidden -translate-y-1/2 md:block">
-      <ol className="relative space-y-8 border-l border-cream/50 pl-7">
-        {product.scentFamilies.slice(0, 3).map((family) => (
-          <li key={family} className="relative">
-            <span
-              aria-hidden="true"
-              className="absolute -left-9.25 top-0.5 h-4 w-4 rounded-full border border-cream bg-ink"
-            />
-            <p className="text-[10px] uppercase tracking-[0.25em] text-cream/80">
-              Scent
-            </p>
-            <p className="text-sm">{getScentName(family)}</p>
-          </li>
-        ))}
-      </ol>
-      <Link
-        href={`/shop/${product.slug}`}
-        className="mt-8 inline-flex h-11 items-center gap-2 text-xs uppercase tracking-[0.2em] underline-offset-4 hover:underline"
-      >
-        {product.name}
-        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-      </Link>
-    </div>
-  );
-}
 
 export default function Hero() {
   return (
     <section
-      className="relative flex min-h-[max(34rem,75svh)] w-full overflow-hidden text-cream"
+      className="relative isolate flex min-h-[max(32rem,75svh)] w-full overflow-hidden text-cream"
       style={{
-        // Drop your photo at public/hero.jpg. Until then the gradient shows.
+        // Drop your picture at public/images/hero.jpg. Until then the purple gradient shows.
         backgroundImage:
-          "url(/images/Hero.jpg), linear-gradient(160deg, color-mix(in srgb, var(--color-ink) 80%, black) 0%, var(--color-ink) 55%, color-mix(in srgb, var(--color-ink) 55%, var(--color-gold)) 130%)",
+          "url(/images/hero.jpg), linear-gradient(115deg, color-mix(in srgb, var(--color-ink) 82%, black) 0%, var(--color-ink) 45%, color-mix(in srgb, var(--color-accent) 70%, var(--color-gold)) 135%)",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "center right",
       }}
     >
-      {/* Keeps the text readable whatever the photo looks like */}
-      <div aria-hidden="true" className="absolute inset-0 bg-ink/20" />
+      {/* Phones: an even purple so the text stays readable */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-ink/55 md:hidden"
+        className="absolute inset-0 bg-ink/65 md:hidden"
       />
+      {/* Larger screens: dark purple on the left that flows away to the right */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 hidden bg-linear-to-r from-ink/90 via-ink/55 to-ink/5 md:block"
+        className="absolute inset-0 hidden md:block"
+        style={{
+          backgroundImage: `linear-gradient(to right, color-mix(in srgb, var(--color-ink) ${PURPLE_LEFT}%, transparent) 0%, color-mix(in srgb, var(--color-ink) ${PURPLE_MIDDLE}%, transparent) ${Math.round(PURPLE_REACH * 0.55)}%, transparent ${PURPLE_REACH}%)`,
+        }}
       />
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col justify-between gap-12 px-4 py-12 md:py-16">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.3em]">Perfumes</p>
-          <h1 className="mt-6 max-w-xl font-serif text-5xl font-normal leading-[1.05] md:text-7xl">
-            Find a scent that feels like you.
-          </h1>
-          <p className="mt-4 font-serif text-xl md:text-2xl">
-            Fragrances for <em>every</em> mood.
+      <div className="relative mx-auto flex w-full max-w-6xl items-center px-4 py-14">
+        <div className="max-w-xl">
+          <p className="flex items-center gap-3 text-[0.6875rem] uppercase tracking-[0.3em]">
+            <span aria-hidden="true" className="h-px w-8 bg-gold" />
+            Perfumes
           </p>
-          <p className="mt-6 max-w-sm text-sm text-cream/90">
+          <h1 className="mt-5 font-serif text-5xl font-normal leading-[1.05] md:text-7xl lg:text-[5.25rem]">
+            Find a scent that <em>feels like you.</em>
+          </h1>
+          <p className="mt-5 max-w-md text-sm text-cream/90 md:text-base">
             {siteConfig.description}
           </p>
           <Link
             href="/shop"
-            className="mt-10 flex h-11 w-64 items-center justify-between border-b border-cream text-xs uppercase tracking-[0.25em] hover:text-gold"
+            className="mt-8 inline-flex h-12 items-center bg-gold px-8 text-xs font-medium uppercase tracking-[0.2em] text-ink transition hover:brightness-110"
           >
-            Discover the scent
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            Discover the collection
           </Link>
+
+          <ul className="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 sm:flex sm:flex-wrap sm:gap-x-8">
+            {trustPoints.map(({ icon: Icon, label }) => (
+              <li key={label} className="flex items-center gap-2.5">
+                <Icon
+                  className="h-6 w-6 shrink-0"
+                  strokeWidth={1.25}
+                  aria-hidden="true"
+                />
+                <span className="max-w-28 text-[0.625rem] uppercase leading-tight tracking-widest">
+                  {label}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        <ul className="flex flex-wrap gap-y-3 text-[11px] uppercase tracking-widest">
-          {facts.map((fact, index) => (
-            <li
-              key={fact}
-              className={index === 0 ? "pr-4" : "border-l border-cream/40 px-4"}
-            >
-              {fact}
-            </li>
-          ))}
-        </ul>
-
-        <Suspense fallback={null}>
-          <HeroNotes />
-        </Suspense>
       </div>
     </section>
   );
