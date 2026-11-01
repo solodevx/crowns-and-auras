@@ -1,4 +1,4 @@
-// The eight scent categories. Names, taglines and colours live here only.
+// The eight scent categories. Names, taglines and card colours live here only.
 // The slug is the stable key stored on products and used in shop URLs.
 export const scentFamilies = [
   "floral-bouquets",
@@ -13,13 +13,15 @@ export const scentFamilies = [
 
 export type ScentFamily = (typeof scentFamilies)[number];
 
+// The card colour, taken from the brand palette (see globals.css)
+export type CardTone = "plum" | "lavender" | "gold";
+
 export type ScentCategory = {
   slug: ScentFamily;
   name: string;
   tagline: string;
-  photo: string; // put the photo at this path inside /public
-  color: string; // a natural colour behind the photo, matching the scent
-  text: "light" | "dark"; // the text colour that reads clearly on that colour
+  tone: CardTone;
+  photo: string; // put the picture at this path inside /public
 };
 
 export const scentCategories: Record<ScentFamily, ScentCategory> = {
@@ -27,65 +29,57 @@ export const scentCategories: Record<ScentFamily, ScentCategory> = {
     slug: "floral-bouquets",
     name: "Floral Bouquets",
     tagline: "Soft. Romantic. Timeless.",
-    photo: "/collections/floral.jpg",
-    color: "#9a4562", // rose
-    text: "light",
+    tone: "lavender",
+    photo: "images/collections/1. Blush Bloom — Floral Heart.jpg",
   },
   "woody-and-deep": {
     slug: "woody-and-deep",
     name: "Woody & Deep",
     tagline: "Calm. Grounded. Lasting.",
-    photo: "/collections/woody.jpg",
-    color: "#5b3a29", // walnut brown
-    text: "light",
+    tone: "plum",
+    photo: "images/collections/2. Sacred Wood — Woody Base.jpg",
   },
   "citrus-bright": {
     slug: "citrus-bright",
     name: "Citrus Bright",
     tagline: "Zesty. Sunny. Alive.",
-    photo: "/collections/citrus.jpg",
-    color: "#f0b429", // lemon and orange
-    text: "dark",
+    tone: "gold",
+    photo: "images/collections/3. Golden Citrus — Citrus Top.jpg",
   },
   "sweet-and-gourmand": {
     slug: "sweet-and-gourmand",
     name: "Sweet & Gourmand",
     tagline: "Cozy. Playful. Delicious.",
-    photo: "/collections/sweet.jpg",
-    color: "#c98a4b", // caramel
-    text: "dark",
+    tone: "lavender",
+    photo: "images/collections/4. Vanille Caramel — Gourmand Base.jpg",
   },
   "warm-and-sensual": {
     slug: "warm-and-sensual",
     name: "Warm & Sensual",
     tagline: "Rich. Alluring. Addictive.",
-    photo: "/collections/oriental.jpg",
-    color: "#8c2f39", // amber and deep red
-    text: "light",
+    tone: "plum",
+    photo: "images/collections/5. Amber Ritual — Spicy Oriental.jpg",
   },
   "fresh-and-radiant": {
     slug: "fresh-and-radiant",
     name: "Fresh & Radiant",
     tagline: "Light. Elegant. Uplifting.",
-    photo: "/collections/fresh.jpg",
-    color: "#276b5d", // sea green
-    text: "light",
+    tone: "gold",
+    photo: "images/collections/6. Dew & Mint — Aquatic Fresh.jpg",
   },
   "soft-musk": {
     slug: "soft-musk",
     name: "Soft Musk",
     tagline: "Clean. Intimate. Skin-like.",
-    photo: "/collections/musky.jpg",
-    color: "#d9cbb8", // warm sand
-    text: "dark",
+    tone: "lavender",
+    photo: "images/collections/7. Powder Silk — Musk Skin.jpg",
   },
   "aromatic-and-herbal": {
     slug: "aromatic-and-herbal",
     name: "Aromatic & Herbal",
     tagline: "Crisp. Calm. Clean.",
-    photo: "/collections/aromatic.jpg",
-    color: "#4f6244", // sage
-    text: "light",
+    tone: "plum",
+    photo: "images/collections/8. Herb Garden — Aromatic Herbal.jpg",
   },
 };
 
