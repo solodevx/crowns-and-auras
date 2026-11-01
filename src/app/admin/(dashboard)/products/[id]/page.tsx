@@ -7,6 +7,11 @@ import ProductForm, {
 } from "@/components/admin/ProductForm";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminProductForEdit } from "@/lib/admin-products";
+import {
+  featuredFullMessage,
+  getFeaturedCountForPage,
+  HOMEPAGE_FEATURED_LIMIT,
+} from "@/lib/featured-limit";
 import { updateProductAction } from "../actions";
 
 export const metadata = { title: "Edit product" };
@@ -32,6 +37,9 @@ async function EditProductContent({ params }: EditProductPageProps) {
   const product = await getAdminProductForEdit(id);
 
   if (!product) notFound();
+
+  // Featured perfumes OTHER than this one
+  const otherFeatured = await getFeaturedCountForPage(product.id);
 
   const initialValues: ProductFormValues = {
     brand: product.brand,
@@ -60,6 +68,8 @@ async function EditProductContent({ params }: EditProductPageProps) {
         submitAction={updateProductAction.bind(null, product.id)}
         submitLabel="Save changes"
         initialValues={initialValues}
+        featuredFull={otherFeatured >= HOMEPAGE_FEATURED_LIMIT}
+        featuredMessage={featuredFullMessage}
       />
 
       <section className="mt-10 max-w-2xl border-t border-ink/10 pt-6">

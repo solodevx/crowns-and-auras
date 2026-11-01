@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { connectToDatabase } from "@/lib/db";
+import {
+  countOtherActiveFeatured,
+  featuredFullResult,
+  HOMEPAGE_FEATURED_LIMIT,
+} from "@/lib/featured-limit";
 import { parseProductInput } from "@/lib/parse-product-input";
 import type { ProductFormResult } from "@/lib/product-validators";
 import { slugify } from "@/lib/slug";
@@ -38,6 +43,12 @@ export async function createProductAction(
       $or: [{ slug }, { previousSlugs: slug }],
     });
     if (taken) return duplicateResult;
+
+    // The homepage can only show so many featured perfumes
+    if (input.featured && input.isActive) {
+      const others = await countOtherActiveFeatured(null);
+      if (others >= HOMEPAGE_FEATURED_LIMIT) return featuredFullResult;
+    }
 
     await Product.create({
       slug,

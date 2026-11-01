@@ -26,6 +26,9 @@ type ProductFormProps = {
   submitAction: (payload: unknown) => Promise<ProductFormResult>;
   submitLabel: string;
   initialValues?: ProductFormValues;
+  // True when the homepage already has its full set of featured perfumes
+  featuredFull?: boolean;
+  featuredMessage?: string;
 };
 
 const blankValues: ProductFormValues = {
@@ -55,6 +58,8 @@ export default function ProductForm({
   submitAction,
   submitLabel,
   initialValues = blankValues,
+  featuredFull = false,
+  featuredMessage = "The homepage is full. Untick one first.",
 }: ProductFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<ProductFormValues>(initialValues);
@@ -62,6 +67,10 @@ export default function ProductForm({
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isNavigating, startNavigation] = useTransition();
+  const isBusy = isSubmitting || isNavigating;
+
+  // A visible perfume can't be newly featured while the homepage is full
+  const blockFeaturing = featuredFull && values.isActive && !values.featured;
 
   function setField<Key extends keyof ProductFormValues>(
     key: Key,
@@ -105,7 +114,7 @@ export default function ProductForm({
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isSubmitting) return;
+    if (isBusy) return;
     setFormError("");
 
     // Prices are typed as text, so turn them into numbers before checking
@@ -127,6 +136,12 @@ export default function ProductForm({
         if (!fieldErrors[field]) fieldErrors[field] = issue.message;
       }
       setErrors(fieldErrors);
+      setFormError("Please check the highlighted fields.");
+      return;
+    }
+
+    if (featuredFull && result.data.isActive && result.data.featured) {
+      setErrors({ featured: featuredMessage });
       setFormError("Please check the highlighted fields.");
       return;
     }
@@ -192,7 +207,7 @@ export default function ProductForm({
       <div>
         <label htmlFor="description" className="block text-sm font-medium">
           Description{" "}
-          <span className="font-normal text-ink/70">(optional)</span>
+          <span className="font-normal text-ink/60">(optional)</span>
         </label>
         <textarea
           id="description"
@@ -215,7 +230,7 @@ export default function ProductForm({
       />
 
       <fieldset>
-        <legend className="text-sm font-medium">Scent families</legend>
+        <legend className="text-sm font-medium">Scent categories</legend>
         <div className="mt-2 flex flex-wrap gap-2">
           {scentFamilies.map((scent) => (
             <label
@@ -324,23 +339,30 @@ export default function ProductForm({
           />
           Visible in the shop
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label
+          className={`flex items-center gap-2 text-sm ${blockFeaturing ? "opacity-60" : ""}`}
+        >
           <input
             type="checkbox"
             checked={values.featured}
+            disabled={blockFeaturing}
             onChange={(event) => setField("featured", event.target.checked)}
           />
           Show on the homepage (featured)
         </label>
+        {blockFeaturing && (
+          <p className="text-xs text-ink/70">{featuredMessage}</p>
+        )}
+        <FieldError id="featured" message={errors.featured} />
       </div>
 
       <div>
         <button
           type="submit"
-          disabled={isSubmitting || isNavigating}
+          disabled={isBusy}
           className="h-12 min-w-44 rounded bg-ink px-8 text-sm text-cream disabled:opacity-60"
         >
-          {isSubmitting || isNavigating ? "Saving..." : submitLabel}
+          {isBusy ? "Saving..." : submitLabel}
         </button>
         <p role="alert" className="mt-3 min-h-5 text-sm text-red-700">
           {formError}

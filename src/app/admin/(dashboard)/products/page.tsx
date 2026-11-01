@@ -3,6 +3,7 @@ import Link from "next/link";
 import ProductVisibilityButton from "@/components/admin/ProductVisibilityButton";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminProducts } from "@/lib/admin-products";
+import { HOMEPAGE_FEATURED_LIMIT } from "@/lib/featured-limit";
 import { formatNaira } from "@/lib/format";
 
 export const metadata = { title: "Products" };
@@ -19,7 +20,9 @@ export default function AdminProductsPage() {
           Add product
         </Link>
       </div>
-      <Suspense fallback={<p className="mt-6 text-ink/70">Loading products…</p>}>
+      <Suspense
+        fallback={<p className="mt-6 text-ink/70">Loading products…</p>}
+      >
         <ProductsContent />
       </Suspense>
     </>
@@ -34,58 +37,80 @@ async function ProductsContent() {
     return <p className="mt-8 text-ink/70">No products yet.</p>;
   }
 
-  return (
-    <ul className="mt-6 divide-y divide-ink/10 rounded-lg border border-ink/10">
-      {products.map((product) => (
-        <li
-          key={product.id}
-          className={`flex flex-wrap items-center justify-between gap-3 p-4 ${
-            product.isActive ? "" : "bg-ink/5 text-ink/70"
-          }`}
-        >
-          <div>
-            <p className="text-xs uppercase tracking-widest">{product.brand}</p>
-            <p className="font-serif text-lg">{product.name}</p>
-            <p className="mt-1 text-sm">
-              {product.sizes
-                .map(
-                  (size) =>
-                    `${size.size} ${formatNaira(size.price)}${
-                      size.available ? "" : " (unavailable)"
-                    }`,
-                )
-                .join(" · ")}
-            </p>
-          </div>
+  const featuredShown = products.filter(
+    (product) => product.featured && product.isActive,
+  ).length;
 
-          <div className="flex items-center gap-3">
-            <div className="flex gap-2 text-xs">
-              <span
-                className={`rounded px-2 py-1 ${
-                  product.isActive
-                    ? "bg-green-100 text-green-900"
-                    : "bg-ink/10"
-                }`}
-              >
-                {product.isActive ? "Visible" : "Hidden"}
-              </span>
-              {product.featured && (
-                <span className="rounded bg-ink/10 px-2 py-1">Featured</span>
-              )}
+  return (
+    <>
+      <p className="mt-6 text-sm text-ink/80">
+        Homepage featured: {featuredShown} of {HOMEPAGE_FEATURED_LIMIT}
+        {featuredShown >= HOMEPAGE_FEATURED_LIMIT &&
+          " (full: untick one to feature another)"}
+      </p>
+
+      {featuredShown > HOMEPAGE_FEATURED_LIMIT && (
+        <p className="mt-3 rounded border border-amber-700/30 bg-amber-100 px-4 py-3 text-sm text-amber-900">
+          {featuredShown} perfumes are featured, but the homepage shows only{" "}
+          {HOMEPAGE_FEATURED_LIMIT}. Untick &ldquo;Show on the homepage&rdquo;
+          on {featuredShown - HOMEPAGE_FEATURED_LIMIT} of them.
+        </p>
+      )}
+
+      <ul className="mt-4 divide-y divide-ink/10 rounded-lg border border-ink/10">
+        {products.map((product) => (
+          <li
+            key={product.id}
+            className={`flex flex-wrap items-center justify-between gap-3 p-4 ${
+              product.isActive ? "" : "bg-ink/5 text-ink/70"
+            }`}
+          >
+            <div>
+              <p className="text-xs uppercase tracking-widest">
+                {product.brand}
+              </p>
+              <p className="font-serif text-lg">{product.name}</p>
+              <p className="mt-1 text-sm">
+                {product.sizes
+                  .map(
+                    (size) =>
+                      `${size.size} ${formatNaira(size.price)}${
+                        size.available ? "" : " (unavailable)"
+                      }`,
+                  )
+                  .join(" · ")}
+              </p>
             </div>
-            <Link
-              href={`/admin/products/${product.id}`}
-              className="inline-flex h-11 items-center text-sm underline"
-            >
-              Edit
-            </Link>
-            <ProductVisibilityButton
-              productId={product.id}
-              isActive={product.isActive}
-            />
-          </div>
-        </li>
-      ))}
-    </ul>
+
+            <div className="flex items-center gap-3">
+              <div className="flex gap-2 text-xs">
+                <span
+                  className={`rounded px-2 py-1 ${
+                    product.isActive
+                      ? "bg-green-100 text-green-900"
+                      : "bg-ink/10"
+                  }`}
+                >
+                  {product.isActive ? "Visible" : "Hidden"}
+                </span>
+                {product.featured && (
+                  <span className="rounded bg-gold/40 px-2 py-1">Featured</span>
+                )}
+              </div>
+              <Link
+                href={`/admin/products/${product.id}`}
+                className="inline-flex h-11 items-center text-sm underline"
+              >
+                Edit
+              </Link>
+              <ProductVisibilityButton
+                productId={product.id}
+                isActive={product.isActive}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

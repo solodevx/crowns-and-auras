@@ -2,6 +2,11 @@ import { Suspense } from "react";
 import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
 import { requireAdmin } from "@/lib/admin-auth";
+import {
+  featuredFullMessage,
+  getFeaturedCountForPage,
+  HOMEPAGE_FEATURED_LIMIT,
+} from "@/lib/featured-limit";
 import { createProductAction } from "./actions";
 
 export const metadata = { title: "Add product" };
@@ -22,7 +27,14 @@ export default function NewProductPage() {
 
 async function NewProductContent() {
   await requireAdmin();
+  const featuredCount = await getFeaturedCountForPage();
+
   return (
-    <ProductForm submitAction={createProductAction} submitLabel="Add product" />
+    <ProductForm
+      submitAction={createProductAction}
+      submitLabel="Add product"
+      featuredFull={featuredCount >= HOMEPAGE_FEATURED_LIMIT}
+      featuredMessage={featuredFullMessage}
+    />
   );
 }

@@ -5,6 +5,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/admin-auth";
 import { connectToDatabase } from "@/lib/db";
+import {
+  countOtherActiveFeatured,
+  featuredFullMessage,
+  featuredFullResult,
+  HOMEPAGE_FEATURED_LIMIT,
+} from "@/lib/featured-limit";
 import { parseProductInput } from "@/lib/parse-product-input";
 import { buildUniqueProductSlug, rememberOldSlug } from "@/lib/product-slug";
 import type { ProductFormResult } from "@/lib/product-validators";
@@ -29,14 +35,30 @@ export async function setProductVisibilityAction(
 
   const parsed = visibilitySchema.safeParse(payload);
   if (!parsed.success) return { ok: false, message: "Invalid request." };
+  const productObjectId = new mongoose.Types.ObjectId(parsed.data.productId);
 
   try {
     await connectToDatabase();
+
+    // Showing a featured perfume puts it on the homepage, so it needs a free spot
+    if (parsed.data.isActive) {
+      const target = await Product.findById(productObjectId, {
+        featured: 1,
+      }).lean();
+      if (!target) return { ok: false, message: "Product not found." };
+
+      if (target.featured) {
+        const others = await countOtherActiveFeatured(productObjectId);
+        if (others >= HOMEPAGE_FEATURED_LIMIT) {
+          return { ok: false, message: featuredFullMessage };
+        }
+      }
+    }
+
     const result = await Product.updateOne(
-      { _id: parsed.data.productId },
+      { _id: productObjectId },
       { $set: { isActive: parsed.data.isActive } },
     );
-
     if (result.matchedCount === 0) {
       return { ok: false, message: "Product not found." };
     }
@@ -81,6 +103,12 @@ export async function updateProductAction(
       previousSlugs: 1,
     }).lean();
     if (!existing) return { ok: false, message: "Product not found." };
+
+    // The homepage can only show so many featured perfumes
+    if (input.featured && input.isActive) {
+      const others = await countOtherActiveFeatured(productObjectId);
+      if (others >= HOMEPAGE_FEATURED_LIMIT) return featuredFullResult;
+    }
 
     const newSlug = await buildUniqueProductSlug(
       input.brand,
