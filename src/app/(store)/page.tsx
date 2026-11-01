@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import AboutBanner from "@/components/store/AboutBanner";
 import CollectionCards from "@/components/store/CollectionCards";
 import FeaturedProductCard from "@/components/store/FeaturedProductCard";
 import Hero from "@/components/store/Hero";
@@ -19,8 +20,10 @@ const steps = [
   { title: "We deliver", text: "Delivery across Lagos." },
 ];
 
+const FEATURED_COUNT = 6;
+
 async function FeaturedProducts() {
-  const featured = (await getFeaturedProducts()).slice(0, 5);
+  const featured = (await getFeaturedProducts()).slice(0, FEATURED_COUNT);
 
   if (featured.length === 0) {
     return (
@@ -29,7 +32,7 @@ async function FeaturedProducts() {
   }
 
   return (
-    <ul className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+    <ul className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-6">
       {featured.map((product) => (
         <li key={product.id}>
           <FeaturedProductCard product={product} />
@@ -51,7 +54,7 @@ export default function HomePage() {
 
       <CollectionCards />
 
-      <section className="mx-auto max-w-6xl px-4 pb-6 pt-4">
+      <section className="mx-auto max-w-6xl px-4 pb-14 pt-4">
         <SectionHeading title="Featured fragrances" />
         <Suspense
           fallback={<p className="mt-8 text-center text-ink/70">Loading…</p>}
@@ -69,19 +72,19 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="mt-10 bg-blush">
-        <div className="mx-auto max-w-6xl px-4 py-14">
-          <SectionHeading title="How it works" />
-          <ol className="mt-8 grid gap-8 text-center md:grid-cols-3">
-            {steps.map((step, index) => (
-              <li key={step.title}>
-                <p className="font-serif text-4xl">{index + 1}</p>
-                <p className="mt-2 font-medium">{step.title}</p>
-                <p className="text-sm text-ink/70">{step.text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
+      <AboutBanner />
+
+      <section className="mx-auto max-w-6xl px-4 py-14">
+        <SectionHeading title="How it works" />
+        <ol className="mt-8 grid gap-8 text-center md:grid-cols-3">
+          {steps.map((step, index) => (
+            <li key={step.title}>
+              <p className="font-serif text-4xl">{index + 1}</p>
+              <p className="mt-2 font-medium">{step.title}</p>
+              <p className="text-sm text-ink/70">{step.text}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="bg-ink text-cream">
