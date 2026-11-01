@@ -51,7 +51,7 @@ export default function Hero() {
       style={{
         // Drop your photo at public/hero.jpg. Until then the gradient shows.
         backgroundImage:
-          "url(/images/hero.webp), linear-gradient(160deg, color-mix(in srgb, var(--color-ink) 80%, black) 0%, var(--color-ink) 55%, color-mix(in srgb, var(--color-ink) 55%, var(--color-gold)) 130%)",
+          "url(/images/Hero.jpg), linear-gradient(160deg, color-mix(in srgb, var(--color-ink) 80%, black) 0%, var(--color-ink) 55%, color-mix(in srgb, var(--color-ink) 55%, var(--color-gold)) 130%)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

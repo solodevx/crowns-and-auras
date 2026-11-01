@@ -1,10 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import {
-  scentCategories,
-  scentFamilies,
-  type CardTone,
-} from "@/config/scents";
+import { scentCategories, scentFamilies, type CardTone } from "@/config/scents";
 import SectionHeading from "./SectionHeading";
 
 // Each tone uses only the brand palette (the variables in globals.css).
@@ -44,7 +39,7 @@ export default function CollectionCards() {
               <Link
                 href={`/shop?scent=${slug}`}
                 aria-label={`Shop ${category.name}. ${category.tagline}`}
-                className={`group relative isolate flex aspect-[4/5] flex-col justify-between overflow-hidden rounded-sm p-3 sm:aspect-[3/2] sm:p-4 lg:p-5 ${tone.text}`}
+                className={`group relative isolate flex aspect-4/5 flex-col justify-between overflow-hidden rounded-sm p-3 sm:aspect-3/2 sm:p-4 lg:p-5 ${tone.text}`}
                 style={{ backgroundColor: tone.base }}
               >
                 {/* The picture covers the card and fades into the card colour */}
@@ -70,7 +65,7 @@ export default function CollectionCards() {
 
                 {/* The text stays in the left half so the picture has room */}
                 <span className="relative w-[60%] sm:w-1/2">
-                  <span className="block break-words font-serif text-xs uppercase leading-snug tracking-wider sm:text-sm lg:text-base">
+                  <span className="block wrap-break-word font-serif text-xs uppercase leading-snug tracking-wider sm:text-sm lg:text-base">
                     {category.name}
                   </span>
                   <span className="mt-1 block text-[10px] leading-snug sm:text-[11px]">
@@ -78,13 +73,10 @@ export default function CollectionCards() {
                   </span>
                 </span>
 
-                {/* A quiet text link: thin underline, arrow on the end */}
-                <span className="relative inline-flex w-fit items-center gap-1.5 border-b border-current pb-0.5 text-[10px] font-medium uppercase tracking-[0.2em] transition-[border-width] duration-300 group-hover:border-b-2 motion-reduce:transition-none">
+                {/* Transparent outline button. On hover it gets a faint wash of its
+                    own colour, and the text and border never change colour. */}
+                <span className="relative inline-flex h-8 w-fit items-center border border-current px-3 text-[10px] uppercase tracking-[0.18em] transition-colors duration-300 group-hover:bg-[color-mix(in_srgb,currentColor_16%,transparent)] motion-reduce:transition-none">
                   Shop now
-                  <ArrowRight
-                    className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-                    aria-hidden="true"
-                  />
                 </span>
               </Link>
             </li>
