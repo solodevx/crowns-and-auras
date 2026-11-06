@@ -1,11 +1,39 @@
+import Link from "next/link";
 import CheckoutForm from "@/components/store/CheckoutForm";
 
 export const metadata = { title: "Checkout", robots: { index: false } };
 
 export default function CheckoutPage() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="font-serif text-3xl">Checkout</h1>
+    <section className="mx-auto max-w-6xl px-4 pb-16 pt-6">
+      <nav aria-label="Breadcrumb" className="text-xs text-ink/70">
+        <ol className="flex items-center gap-2">
+          <li>
+            <Link href="/" className="hover:underline">
+              Home
+            </Link>
+          </li>
+          <li aria-hidden="true">›</li>
+          <li>
+            <Link href="/cart" className="hover:underline">
+              Cart
+            </Link>
+          </li>
+          <li aria-hidden="true">›</li>
+          <li aria-current="page">Checkout</li>
+        </ol>
+      </nav>
+
+      <header className="mt-10 text-center">
+        <h1 className="font-serif text-3xl uppercase tracking-[0.4em] md:text-4xl">
+          Checkout
+        </h1>
+        <span
+          aria-hidden="true"
+          className="mx-auto mt-4 block h-1.5 w-1.5 rounded-full bg-gold"
+        />
+      </header>
+
       <CheckoutForm />
     </section>
   );

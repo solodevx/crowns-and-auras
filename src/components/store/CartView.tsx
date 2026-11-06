@@ -39,7 +39,8 @@ const panelTones = {
 } as const;
 
 // Column widths: product | quantity | price | remove (from tablet size up)
-const columns = "sm:grid sm:grid-cols-[1fr_8.5rem_7rem_2.75rem] sm:justify-start";
+const columns =
+  "sm:grid sm:grid-cols-[1fr_8.5rem_7rem_2.75rem] sm:justify-start";
 
 function Thumb({ item }: { item: CartItem }) {
   // The cart lives in the browser, so only trust pictures from our own image library
@@ -48,7 +49,7 @@ function Thumb({ item }: { item: CartItem }) {
     : "";
 
   return (
-    <span className="relative block h-24 w-[4.5rem] shrink-0 overflow-hidden border border-ink/10 bg-white">
+    <span className="relative block h-24 w-18 shrink-0 overflow-hidden border border-ink/10 bg-white">
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -125,9 +126,13 @@ function CartRow({ item }: { item: CartItem }) {
       </div>
 
       <div className="text-right">
-        <p className="font-medium">{formatNaira(item.unitPrice * item.quantity)}</p>
+        <p className="font-medium">
+          {formatNaira(item.unitPrice * item.quantity)}
+        </p>
         {item.quantity > 1 && (
-          <p className="text-xs text-ink/70">{formatNaira(item.unitPrice)} each</p>
+          <p className="text-xs text-ink/70">
+            {formatNaira(item.unitPrice)} each
+          </p>
         )}
       </div>
 
@@ -262,7 +267,9 @@ export default function CartView() {
             <dt className={tone.muted}>Delivery</dt>
             <dd>At checkout</dd>
           </div>
-          <div className={`flex items-baseline justify-between border-t pt-3 ${tone.line}`}>
+          <div
+            className={`flex items-baseline justify-between border-t pt-3 ${tone.line}`}
+          >
             <dt className="font-medium">Total</dt>
             <dd className={`font-serif text-3xl ${tone.amount}`}>
               {formatNaira(subtotal)}
@@ -284,7 +291,11 @@ export default function CartView() {
           <h3 className="font-serif text-lg">Payment method</h3>
           {/* PLACEHOLDER wording: true of the shop today */}
           <p className="mt-3 flex items-start gap-3 text-sm">
-            <Landmark className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+            <Landmark
+              className="mt-0.5 h-5 w-5 shrink-0"
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
             <span>
               <span className="block font-medium">Bank transfer</span>
               <span className={tone.muted}>
