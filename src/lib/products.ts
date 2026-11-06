@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { connection } from "next/server";
 import type { ScentFamily } from "@/config/scents";
+import { noteSlugs, type NoteSlug } from "@/config/notes";
 import { connectToDatabase } from "@/lib/db";
 import { slugify } from "@/lib/slug";
 import { sortVariantsBySize } from "@/lib/variants";
@@ -20,6 +21,7 @@ type ProductRecord = {
   images: string[];
   variants: { size: string; price: number; available?: boolean | null }[];
   featured?: boolean | null;
+  notes?: string[] | null;
 };
 
 // Which brands are switched off, and each brand's web address.
@@ -64,6 +66,9 @@ function toProduct(
       })),
     ),
     featured: record.featured ?? false,
+    notes: (record.notes ?? []).filter((note): note is NoteSlug =>
+      (noteSlugs as readonly string[]).includes(note),
+    ),
   };
 }
 

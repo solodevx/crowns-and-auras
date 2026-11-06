@@ -1,3 +1,4 @@
+import type { NoteSlug } from "@/config/notes";
 import type { ScentFamily } from "@/config/scents";
 
 export type ProductVariant = {
@@ -14,6 +15,7 @@ export type Product = {
   name: string;
   description: string;
   scentFamilies: ScentFamily[];
+  notes: NoteSlug[]; // the small pictures on the product page
   images: string[]; // image addresses (empty for now)
   variants: ProductVariant[];
   featured: boolean;

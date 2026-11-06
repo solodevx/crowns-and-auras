@@ -136,6 +136,7 @@ export async function updateProductAction(
           name: input.name,
           description: input.description,
           scentFamilies: input.scentFamilies,
+          notes: input.notes,
           images: input.images,
           variants: input.variants,
           featured: input.featured,

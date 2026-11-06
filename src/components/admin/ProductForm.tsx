@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
+import NotesPicker from "@/components/admin/NotesPicker";
 import { getScentName, scentFamilies } from "@/config/scents";
 import {
   productInputSchema,
@@ -20,6 +21,7 @@ export type ProductFormValues = {
   description: string;
   images: string[];
   scentFamilies: string[];
+  notes: string[];
   variants: VariantValue[];
   featured: boolean;
   isActive: boolean;
@@ -41,6 +43,7 @@ const blankValues: ProductFormValues = {
   description: "",
   images: [],
   scentFamilies: [],
+  notes: [],
   variants: [{ size: "", price: "", available: true }],
   featured: false,
   isActive: true,
@@ -278,6 +281,12 @@ export default function ProductForm({
         </div>
         <FieldError id="scentFamilies" message={errors.scentFamilies} />
       </fieldset>
+
+      <NotesPicker
+        value={values.notes}
+        onChange={(notes) => setField("notes", notes)}
+        error={errors.notes}
+      />
 
       <fieldset>
         <legend className="text-sm font-medium">Sizes and prices</legend>

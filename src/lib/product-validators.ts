@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { NOTE_LIMIT, noteSlugs } from "@/config/notes";
 import { scentFamilies } from "@/config/scents";
 import { sortVariantsBySize } from "@/lib/variants";
 
@@ -24,6 +25,10 @@ export const productInputSchema = z.object({
     .array(z.string().startsWith("https://res.cloudinary.com/"))
     .max(5, "At most 5 photos"),
   scentFamilies: z.array(z.enum(scentFamilies)),
+  notes: z
+    .array(z.enum(noteSlugs))
+    .max(NOTE_LIMIT, `Choose at most ${NOTE_LIMIT} notes`)
+    .transform((notes) => [...new Set(notes)]),
   variants: z
     .array(variantSchema)
     .min(1, "Add at least one size")

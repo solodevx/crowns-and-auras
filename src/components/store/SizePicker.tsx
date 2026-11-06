@@ -33,10 +33,19 @@ export default function SizePicker({ product }: { product: Product }) {
   }
 
   return (
-    <div className="mt-6">
-      <p className="text-sm font-medium">Size</p>
+    <div className="mt-8">
+      <p className="text-sm">
+        <span className="font-medium">Size:</span>{" "}
+        <span className="text-ink/70">
+          {selectedVariant ? selectedVariant.size : "none available"}
+        </span>
+      </p>
 
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div
+        className="mt-3 flex flex-wrap gap-2"
+        role="group"
+        aria-label="Choose a size"
+      >
         {product.variants.map((variant) => {
           const isSelected = variant.size === selectedSize;
 
@@ -50,9 +59,9 @@ export default function SizePicker({ product }: { product: Product }) {
                 setJustAdded(false);
               }}
               aria-pressed={isSelected}
-              className={`h-11 rounded-full border px-5 text-sm ${
-                isSelected ? "border-ink bg-ink text-cream" : "border-ink/20"
-              } ${!variant.available ? "cursor-not-allowed line-through opacity-40" : ""}`}
+              className={`h-11 min-w-20 border px-4 text-sm ${
+                isSelected ? "border-ink ring-1 ring-ink" : "border-ink/25"
+              } ${!variant.available ? "cursor-not-allowed line-through opacity-40" : "hover:border-ink"}`}
             >
               {variant.size}
             </button>
@@ -60,20 +69,21 @@ export default function SizePicker({ product }: { product: Product }) {
         })}
       </div>
 
-      {selectedVariant ? (
-        <p className="mt-4 text-2xl">{formatNaira(selectedVariant.price)}</p>
-      ) : (
-        <p className="mt-4 text-ink/70">Currently unavailable</p>
-      )}
-
-      <button
-        type="button"
-        onClick={handleAddToCart}
-        disabled={!selectedVariant}
-        className="mt-6 h-12 w-full rounded bg-ink px-8 text-sm text-cream disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
-      >
-        Add to cart
-      </button>
+      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <p className="text-2xl">
+          {selectedVariant
+            ? formatNaira(selectedVariant.price)
+            : "Currently unavailable"}
+        </p>
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={!selectedVariant}
+          className="h-12 min-w-48 flex-1 bg-ink px-8 text-xs uppercase tracking-[0.2em] text-cream hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
+        >
+          Add to cart
+        </button>
+      </div>
 
       <p role="status" className="mt-3 min-h-5 text-sm">
         {justAdded && (

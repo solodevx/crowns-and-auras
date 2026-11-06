@@ -1,4 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { noteSlugs } from "@/config/notes";
 import { scentFamilies } from "@/config/scents";
 
 // One size of a perfume, with its own price and availability
@@ -28,6 +29,7 @@ const productSchema = new Schema(
     name: { type: String, required: true, trim: true },
     description: { type: String, default: "", trim: true },
     scentFamilies: [{ type: String, enum: [...scentFamilies] }],
+    notes: [{ type: String, enum: [...noteSlugs] }],
     images: [{ type: String }],
     variants: {
       type: [variantSchema],
