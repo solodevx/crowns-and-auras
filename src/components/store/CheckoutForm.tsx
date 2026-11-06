@@ -6,10 +6,11 @@ import { useRouter } from "next/navigation";
 import { Landmark } from "lucide-react";
 import { createOrder } from "@/app/(store)/checkout/actions";
 import { deliveryZones, getDeliveryZone } from "@/config/delivery-zones";
-import { useCartItems, type CartItem } from "@/lib/cart-store";
+import { completeOrder, useCartItems, usePlacedOrder } from "@/lib/cart-store";
 import { formatNaira } from "@/lib/format";
 import { optimizedImageUrl } from "@/lib/image-url";
 import { calculateOrderTotals } from "@/lib/order";
+import { useCheckedCart, type CheckedItem } from "@/lib/use-cart-check";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validators";
 
 type FormValues = {
@@ -71,7 +72,7 @@ function Field({
   );
 }
 
-function MiniThumb({ item }: { item: CartItem }) {
+function MiniThumb({ item }: { item: CheckedItem }) {
   // The cart lives in the browser, so only trust pictures from our own image library
   const image = item.image?.startsWith("https://res.cloudinary.com/")
     ? item.image
@@ -108,6 +109,8 @@ function focusFirstError(fieldErrors: FieldErrors) {
 export default function CheckoutForm() {
   const router = useRouter();
   const items = useCartItems();
+  const { orderable, blocked } = useCheckedCart(items);
+  const placedOrder = usePlacedOrder();
   const [values, setValues] = useState<FormValues>(emptyValues);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState("");
@@ -115,8 +118,9 @@ export default function CheckoutForm() {
   const [isNavigating, startNavigation] = useTransition();
   const isBusy = isSubmitting || isNavigating;
 
-  // The "ticket stub" for this order. It is created once and survives redraws,
-  // so pressing Place order twice sends the same stub both times.
+  // The "ticket stub" for this order. It survives redraws, so pressing Place
+  // order twice sends the same stub both times. It is dropped after a
+  // successful order, so the next order always gets a new one.
   const submissionIdRef = useRef<string | null>(null);
 
   function handleChange(
@@ -133,6 +137,13 @@ export default function CheckoutForm() {
     event.preventDefault();
     if (isBusy) return;
     setFormError("");
+
+    if (blocked.length > 0) {
+      setFormError(
+        "Some items in your cart are no longer available. Go back to your cart to remove them.",
+      );
+      return;
+    }
 
     // First check, in the browser, for quick friendly messages
     const result = checkoutSchema.safeParse(values);
@@ -157,7 +168,7 @@ export default function CheckoutForm() {
       const response = await createOrder({
         submissionId: submissionIdRef.current,
         details: result.data,
-        items: items.map((item) => ({
+        items: orderable.map((item) => ({
           productId: item.productId,
           size: item.size,
           quantity: item.quantity,
@@ -165,6 +176,12 @@ export default function CheckoutForm() {
       });
 
       if (response.ok) {
+        // The order exists now. Reset the form, drop the stub, empty the cart.
+        submissionIdRef.current = null;
+        setValues(emptyValues);
+        setErrors({});
+        setFormError("");
+        completeOrder(response.orderNumber);
         startNavigation(() => {
           router.push(`/order-confirmation/${response.orderNumber}`);
         });
@@ -199,10 +216,32 @@ export default function CheckoutForm() {
   }
 
   const selectedZone = getDeliveryZone(values.zoneId);
-  const totals = calculateOrderTotals(items, values.zoneId);
+  // Items that can't be ordered are left out of the totals
+  const totals = calculateOrderTotals(orderable, values.zoneId);
 
-  // All hooks are above this line, so the early return is safe
+  // All hooks are above this line, so the early returns are safe
   if (items.length === 0) {
+    if (placedOrder) {
+      return (
+        <div className="mt-10 border-y border-ink/15 py-16 text-center">
+          <p className="font-serif text-2xl">Thank you! Your order is in.</p>
+          <p className="mt-3 text-sm text-ink/70">Your order number</p>
+          <p className="mt-1 font-serif text-2xl tracking-widest">
+            {placedOrder}
+          </p>
+          <p role="status" className="mt-4 text-sm text-ink/70">
+            Opening your confirmation…
+          </p>
+          <Link
+            href={`/order-confirmation/${placedOrder}`}
+            className="mt-6 inline-flex h-12 items-center bg-ink px-8 text-xs uppercase tracking-[0.2em] text-cream hover:bg-accent"
+          >
+            View my order
+          </Link>
+        </div>
+      );
+    }
+
     return (
       <div className="mt-10 border-y border-ink/15 py-16 text-center">
         <p className="font-serif text-2xl">Your cart is empty</p>
@@ -325,8 +364,20 @@ export default function CheckoutForm() {
         <h2 className="font-serif text-xl">Order summary</h2>
         <div className="mt-3 border-t border-cream/15" />
 
+        {blocked.length > 0 && (
+          <p role="alert" className="mt-3 border border-gold/60 p-3 text-sm">
+            {blocked.length === 1
+              ? "One item in your cart is no longer available."
+              : `${blocked.length} items in your cart are no longer available.`}{" "}
+            <Link href="/cart" className="underline underline-offset-4">
+              Go back to your cart
+            </Link>{" "}
+            to remove {blocked.length === 1 ? "it" : "them"}.
+          </p>
+        )}
+
         <ul className="mt-2 divide-y divide-cream/15">
-          {items.map((item) => (
+          {orderable.map((item) => (
             <li
               key={`${item.productId}-${item.size}`}
               className="flex items-center gap-3 py-3"
@@ -368,7 +419,7 @@ export default function CheckoutForm() {
 
         <button
           type="submit"
-          disabled={isBusy}
+          disabled={isBusy || blocked.length > 0}
           className="mt-6 flex h-12 w-full items-center justify-center bg-gold text-xs font-medium uppercase tracking-[0.2em] text-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isBusy ? "Placing your order..." : "Place order"}

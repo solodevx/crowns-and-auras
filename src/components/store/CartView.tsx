@@ -12,51 +12,59 @@ import {
   removeItem,
   updateQuantity,
   useCartItems,
-  type CartItem,
 } from "@/lib/cart-store";
 import { formatNaira } from "@/lib/format";
 import { optimizedImageUrl } from "@/lib/image-url";
+import { useCheckedCart, type CheckedItem } from "@/lib/use-cart-check";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
-// The colour of the right-hand panel: "lavender" (soft) or "plum" (dark)
-const PANEL_TONE: "lavender" | "plum" = "plum";
+// The colour of the right-hand panel: "plum" (dark) or "lavender" (soft)
+const PANEL_TONE: "plum" | "lavender" = "plum";
 
 const panelTones = {
-  lavender: {
-    panel: "bg-lavender text-ink",
-    line: "border-ink/15",
-    muted: "text-ink/85",
-    amount: "text-ink",
-    button: "bg-ink text-cream hover:bg-accent",
-  },
   plum: {
     panel: "bg-ink text-cream",
     line: "border-cream/15",
     muted: "text-cream/75",
     amount: "text-gold",
     button: "bg-gold text-ink hover:brightness-110",
+    disabledButton: "bg-cream/15 text-cream/60",
+  },
+  lavender: {
+    panel: "bg-lavender text-ink",
+    line: "border-ink/15",
+    muted: "text-ink/85",
+    amount: "text-ink",
+    button: "bg-ink text-cream hover:bg-accent",
+    disabledButton: "bg-ink/20 text-ink/60",
   },
 } as const;
 
-// Column widths: product | quantity | price | remove (from tablet size up)
-const columns =
-  "sm:grid sm:grid-cols-[1fr_8.5rem_7rem_2.75rem] sm:justify-start";
+// Column widths on tablets and up: product | quantity | price | remove
+const tableColumns = "sm:grid-cols-[1fr_8.5rem_7rem_2.75rem]";
 
-function Thumb({ item }: { item: CartItem }) {
+function isBlocked(item: CheckedItem) {
+  return item.status === "unavailable" || item.status === "removed";
+}
+
+function Thumb({ item, large }: { item: CheckedItem; large?: boolean }) {
   // The cart lives in the browser, so only trust pictures from our own image library
   const image = item.image?.startsWith("https://res.cloudinary.com/")
     ? item.image
     : "";
+  const size = large ? "h-32 w-24" : "h-24 w-[4.5rem]";
 
   return (
-    <span className="relative block h-24 w-18 shrink-0 overflow-hidden border border-ink/10 bg-white">
+    <span
+      className={`relative block shrink-0 overflow-hidden border border-ink/10 bg-white ${size}`}
+    >
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={optimizedImageUrl(image, 144, 192)}
+          src={optimizedImageUrl(image, 192, 256)}
           alt=""
-          width={72}
-          height={96}
+          width={96}
+          height={128}
           className="h-full w-full object-cover"
         />
       ) : (
@@ -71,85 +79,153 @@ function Thumb({ item }: { item: CartItem }) {
   );
 }
 
-function CartRow({ item }: { item: CartItem }) {
+function QuantityControl({ item }: { item: CheckedItem }) {
   const label = `${item.name} (${item.size})`;
 
   return (
-    <li
-      className={`flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-ink/10 py-5 ${columns}`}
+    <div
+      role="group"
+      aria-label={`Quantity of ${label}`}
+      className="inline-flex items-center border border-ink/20 bg-white/60"
     >
-      <div className="flex w-full items-center gap-5 sm:w-auto">
-        <Thumb item={item} />
-        <div className="min-w-0">
-          <Link
-            href={`/shop/${item.slug}`}
-            className="block font-serif text-lg font-semibold leading-snug hover:underline sm:text-xl"
-          >
-            {item.name}
-          </Link>
-          <p className="mt-1 text-xs text-ink/70">
-            Size: {item.size} · {item.brand}
-          </p>
+      <button
+        type="button"
+        aria-label={`Decrease quantity of ${label}`}
+        disabled={item.quantity <= 1}
+        onClick={() =>
+          updateQuantity(item.productId, item.size, item.quantity - 1)
+        }
+        className="inline-flex h-11 w-11 items-center justify-center disabled:opacity-30"
+      >
+        <Minus className="h-4 w-4" aria-hidden="true" />
+      </button>
+      <span className="w-10 text-center text-sm" aria-live="polite">
+        {item.quantity}
+      </span>
+      <button
+        type="button"
+        aria-label={`Increase quantity of ${label}`}
+        disabled={item.quantity >= MAX_QUANTITY}
+        onClick={() =>
+          updateQuantity(item.productId, item.size, item.quantity + 1)
+        }
+        className="inline-flex h-11 w-11 items-center justify-center disabled:opacity-30"
+      >
+        <Plus className="h-4 w-4" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+function RemoveButton({ item }: { item: CheckedItem }) {
+  return (
+    <button
+      type="button"
+      aria-label={`Remove ${item.name} (${item.size}) from cart`}
+      onClick={() => removeItem(item.productId, item.size)}
+      className="inline-flex h-11 w-11 items-center justify-center text-ink/70 hover:text-ink"
+    >
+      <Trash2 className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
+    </button>
+  );
+}
+
+function ItemName({ item }: { item: CheckedItem }) {
+  return (
+    <Link
+      href={`/shop/${item.slug}`}
+      className="block font-serif text-lg font-semibold leading-snug hover:underline sm:text-xl"
+    >
+      {item.name}
+    </Link>
+  );
+}
+
+function CartRow({ item }: { item: CheckedItem }) {
+  const blocked = isBlocked(item);
+  const blockedMessage =
+    item.status === "removed" ? "No longer sold" : "Unavailable right now";
+  const lineTotal = formatNaira(item.unitPrice * item.quantity);
+
+  return (
+    <li
+      className={`border-b border-ink/10 py-6 ${blocked ? "opacity-60" : ""}`}
+    >
+      {/* Phones: one tidy block per item */}
+      <div className="sm:hidden">
+        <div className="flex items-start gap-4">
+          <Thumb item={item} large />
+          <div className="min-w-0 flex-1">
+            <ItemName item={item} />
+            <p className="mt-1 text-xs text-ink/70">Size: {item.size}</p>
+            <p className="text-xs text-ink/70">{item.brand}</p>
+            {!blocked && (
+              <p className="mt-3 text-sm">
+                {formatNaira(item.unitPrice)}{" "}
+                <span className="text-ink/70">each</span>
+              </p>
+            )}
+          </div>
+          <div className="-mr-2 -mt-2">
+            <RemoveButton item={item} />
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between border-t border-ink/10 pt-4">
+          {blocked ? (
+            <p className="text-sm font-medium">{blockedMessage}</p>
+          ) : (
+            <>
+              <p>
+                <span className="block text-[0.6875rem] uppercase tracking-[0.2em] text-ink/70">
+                  Total
+                </span>
+                <span className="text-lg font-medium">{lineTotal}</span>
+              </p>
+              <QuantityControl item={item} />
+            </>
+          )}
         </div>
       </div>
 
-      <div
-        role="group"
-        aria-label={`Quantity of ${label}`}
-        className="inline-flex items-center border border-ink/20 bg-white/60"
-      >
-        <button
-          type="button"
-          aria-label={`Decrease quantity of ${label}`}
-          disabled={item.quantity <= 1}
-          onClick={() =>
-            updateQuantity(item.productId, item.size, item.quantity - 1)
-          }
-          className="inline-flex h-11 w-11 items-center justify-center disabled:opacity-30"
-        >
-          <Minus className="h-4 w-4" aria-hidden="true" />
-        </button>
-        <span className="w-10 text-center text-sm" aria-live="polite">
-          {item.quantity}
-        </span>
-        <button
-          type="button"
-          aria-label={`Increase quantity of ${label}`}
-          disabled={item.quantity >= MAX_QUANTITY}
-          onClick={() =>
-            updateQuantity(item.productId, item.size, item.quantity + 1)
-          }
-          className="inline-flex h-11 w-11 items-center justify-center disabled:opacity-30"
-        >
-          <Plus className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
+      {/* Tablets and up: a table row */}
+      <div className={`hidden items-center gap-x-4 sm:grid ${tableColumns}`}>
+        <div className="flex items-center gap-5">
+          <Thumb item={item} />
+          <div className="min-w-0">
+            <ItemName item={item} />
+            <p className="mt-1 text-xs text-ink/70">
+              Size: {item.size} · {item.brand}
+            </p>
+          </div>
+        </div>
 
-      <div className="text-right">
-        <p className="font-medium">
-          {formatNaira(item.unitPrice * item.quantity)}
-        </p>
-        {item.quantity > 1 && (
-          <p className="text-xs text-ink/70">
-            {formatNaira(item.unitPrice)} each
-          </p>
-        )}
-      </div>
+        {blocked ? <span /> : <QuantityControl item={item} />}
 
-      <button
-        type="button"
-        aria-label={`Remove ${label} from cart`}
-        onClick={() => removeItem(item.productId, item.size)}
-        className="inline-flex h-11 w-11 items-center justify-center text-ink/70 hover:text-ink"
-      >
-        <Trash2 className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />
-      </button>
+        <div className="text-right">
+          {blocked ? (
+            <p className="text-sm font-medium">{blockedMessage}</p>
+          ) : (
+            <>
+              <p className="font-medium">{lineTotal}</p>
+              {item.quantity > 1 && (
+                <p className="text-xs text-ink/70">
+                  {formatNaira(item.unitPrice)} each
+                </p>
+              )}
+            </>
+          )}
+        </div>
+
+        <RemoveButton item={item} />
+      </div>
     </li>
   );
 }
 
 export default function CartView() {
   const items = useCartItems();
+  const { checked, orderable, blocked } = useCheckedCart(items);
   const [confirmingClear, setConfirmingClear] = useState(false);
   const tone = panelTones[PANEL_TONE];
 
@@ -170,8 +246,10 @@ export default function CartView() {
     );
   }
 
-  const subtotal = getCartSubtotal(items);
+  // Items that can't be ordered are left out of the totals
+  const subtotal = getCartSubtotal(orderable);
   const count = getCartCount(items);
+  const orderableCount = getCartCount(orderable);
   const whatsappLink = buildWhatsAppLink(
     siteConfig.whatsappNumber,
     "Hello, I have a question about my cart.",
@@ -188,10 +266,36 @@ export default function CartView() {
           Your items <span className="text-ink/70">({count})</span>
         </h2>
 
+        {blocked.length > 0 && (
+          <div
+            role="status"
+            className="mt-4 border border-ink/30 bg-white/60 p-4 text-sm"
+          >
+            <p className="font-medium">
+              {blocked.length === 1
+                ? "One item in your cart can't be ordered right now."
+                : `${blocked.length} items in your cart can't be ordered right now.`}
+            </p>
+            <p className="mt-1 text-ink/80">
+              They are left out of your total. Remove them to continue to
+              checkout.
+            </p>
+            <button
+              type="button"
+              onClick={() =>
+                blocked.forEach((item) => removeItem(item.productId, item.size))
+              }
+              className="mt-3 h-11 border border-ink px-4 text-xs uppercase tracking-[0.15em] hover:bg-ink hover:text-cream"
+            >
+              Remove unavailable items
+            </button>
+          </div>
+        )}
+
         {/* Column titles, from tablet size up */}
         <div
           aria-hidden="true"
-          className={`hidden gap-x-4 border-b border-ink/10 py-3 text-[0.6875rem] uppercase tracking-[0.2em] text-ink/70 ${columns}`}
+          className={`hidden gap-x-4 border-b border-ink/10 py-3 text-[0.6875rem] uppercase tracking-[0.2em] text-ink/70 sm:grid ${tableColumns}`}
         >
           <span>Product</span>
           <span>Quantity</span>
@@ -200,7 +304,7 @@ export default function CartView() {
         </div>
 
         <ul>
-          {items.map((item) => (
+          {checked.map((item) => (
             <CartRow key={`${item.productId}-${item.size}`} item={item} />
           ))}
         </ul>
@@ -257,7 +361,7 @@ export default function CartView() {
         <dl className="mt-4 space-y-2 text-sm">
           <div className="flex justify-between">
             <dt className={tone.muted}>Items</dt>
-            <dd>{count}</dd>
+            <dd>{orderableCount}</dd>
           </div>
           <div className="flex justify-between">
             <dt className={tone.muted}>Subtotal</dt>
@@ -280,12 +384,26 @@ export default function CartView() {
           The delivery fee is added at checkout, based on your area in Lagos.
         </p>
 
-        <Link
-          href="/checkout"
-          className={`mt-6 flex h-12 items-center justify-center text-xs font-medium uppercase tracking-[0.2em] transition ${tone.button}`}
-        >
-          Check out
-        </Link>
+        {blocked.length > 0 ? (
+          <>
+            <span
+              aria-disabled="true"
+              className={`mt-6 flex h-12 cursor-not-allowed items-center justify-center text-xs font-medium uppercase tracking-[0.2em] ${tone.disabledButton}`}
+            >
+              Check out
+            </span>
+            <p className={`mt-2 text-xs ${tone.muted}`}>
+              Remove the unavailable items to continue.
+            </p>
+          </>
+        ) : (
+          <Link
+            href="/checkout"
+            className={`mt-6 flex h-12 items-center justify-center text-xs font-medium uppercase tracking-[0.2em] transition ${tone.button}`}
+          >
+            Check out
+          </Link>
+        )}
 
         <div className={`mt-6 border-t pt-5 ${tone.line}`}>
           <h3 className="font-serif text-lg">Payment method</h3>

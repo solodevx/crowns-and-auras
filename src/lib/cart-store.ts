@@ -21,6 +21,14 @@ let cachedRaw: string | null = null;
 let cachedItems: CartItem[] = EMPTY_CART;
 const listeners = new Set<() => void>();
 
+// The number of an order that was just placed, so checkout can say "thank you"
+// while the page moves. It only lives for a moment and is never saved.
+let placedOrder: string | null = null;
+
+function notify() {
+  listeners.forEach((listener) => listener());
+}
+
 function readCart(): CartItem[] {
   if (typeof window === "undefined") return EMPTY_CART;
 
@@ -54,7 +62,7 @@ function writeCart(items: CartItem[]) {
   } catch {
     // storage unavailable (e.g. private mode): the cart won't persist
   }
-  listeners.forEach((listener) => listener());
+  notify();
 }
 
 function subscribe(listener: () => void) {
@@ -71,7 +79,16 @@ export function useCartItems(): CartItem[] {
   return useSyncExternalStore(subscribe, readCart, () => EMPTY_CART);
 }
 
+export function usePlacedOrder(): string | null {
+  return useSyncExternalStore(
+    subscribe,
+    () => placedOrder,
+    () => null,
+  );
+}
+
 export function addToCart(newItem: Omit<CartItem, "quantity">) {
+  placedOrder = null;
   const items = readCart();
   const existingItem = items.find(
     (item) =>
@@ -119,7 +136,21 @@ export function removeItem(productId: string, size: string) {
 }
 
 export function clearCart() {
+  placedOrder = null;
   writeCart([]);
+}
+
+// The server has accepted the order, so the cart has done its job: empty it,
+// and remember the order number for the "thank you" notice.
+export function completeOrder(orderNumber: string) {
+  placedOrder = orderNumber;
+  writeCart([]);
+  window.setTimeout(() => {
+    if (placedOrder === orderNumber) {
+      placedOrder = null;
+      notify();
+    }
+  }, 60_000);
 }
 
 export function getCartCount(items: CartItem[]): number {
