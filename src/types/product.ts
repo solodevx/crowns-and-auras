@@ -9,7 +9,8 @@ export type ProductVariant = {
 export type Product = {
   id: string;
   slug: string; // the web address part: /shop/velvet-oud
-  brand: string;
+  brand: string; // the brand's name, for display
+  brandSlug: string; // the brand's web address, used by the shop's brand filter
   name: string;
   description: string;
   scentFamilies: ScentFamily[];

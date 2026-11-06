@@ -9,6 +9,7 @@ import {
   HOMEPAGE_FEATURED_LIMIT,
 } from "@/lib/featured-limit";
 import { parseProductInput } from "@/lib/parse-product-input";
+import { brandMissingResult, findBrandForProduct } from "@/lib/product-brand";
 import type { ProductFormResult } from "@/lib/product-validators";
 import { slugify } from "@/lib/slug";
 import { Product } from "@/models/Product";
@@ -27,16 +28,20 @@ export async function createProductAction(
   if (!checked.ok) return checked.result;
   const input = checked.input;
 
-  const slug = slugify(`${input.brand} ${input.name}`);
-  if (!slug) {
-    return {
-      ok: false,
-      message: "Enter a brand and name using letters or numbers.",
-    };
-  }
-
   try {
     await connectToDatabase();
+
+    // The brand must be a real brand record
+    const brand = await findBrandForProduct(input.brandId);
+    if (!brand) return brandMissingResult;
+
+    const slug = slugify(`${brand.name} ${input.name}`);
+    if (!slug) {
+      return {
+        ok: false,
+        message: "Enter a perfume name using letters or numbers.",
+      };
+    }
 
     // The address must not be in use now, or be an old address of another perfume
     const taken = await Product.exists({
@@ -53,7 +58,8 @@ export async function createProductAction(
     await Product.create({
       slug,
       previousSlugs: [],
-      brand: input.brand,
+      brandId: brand.id,
+      brand: brand.name,
       name: input.name,
       description: input.description,
       scentFamilies: input.scentFamilies,

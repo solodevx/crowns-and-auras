@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { getScentName, scentFamilies } from "@/config/scents";
@@ -11,8 +12,10 @@ import {
 
 type VariantValue = { size: string; price: string; available: boolean };
 
+export type BrandOption = { id: string; name: string; isActive: boolean };
+
 export type ProductFormValues = {
-  brand: string;
+  brandId: string;
   name: string;
   description: string;
   images: string[];
@@ -25,6 +28,7 @@ export type ProductFormValues = {
 type ProductFormProps = {
   submitAction: (payload: unknown) => Promise<ProductFormResult>;
   submitLabel: string;
+  brands: BrandOption[];
   initialValues?: ProductFormValues;
   // True when the homepage already has its full set of featured perfumes
   featuredFull?: boolean;
@@ -32,7 +36,7 @@ type ProductFormProps = {
 };
 
 const blankValues: ProductFormValues = {
-  brand: "",
+  brandId: "",
   name: "",
   description: "",
   images: [],
@@ -57,6 +61,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 export default function ProductForm({
   submitAction,
   submitLabel,
+  brands,
   initialValues = blankValues,
   featuredFull = false,
   featuredMessage = "The homepage is full. Untick one first.",
@@ -175,18 +180,43 @@ export default function ProductForm({
       className="mt-6 max-w-2xl space-y-6"
     >
       <div>
-        <label htmlFor="brand" className="block text-sm font-medium">
+        <label htmlFor="brandId" className="block text-sm font-medium">
           Brand
         </label>
-        <input
-          id="brand"
-          value={values.brand}
-          onChange={(event) => setField("brand", event.target.value)}
-          aria-invalid={errors.brand ? true : undefined}
-          aria-describedby={errors.brand ? "brand-error" : undefined}
-          className={inputClassName}
-        />
-        <FieldError id="brand" message={errors.brand} />
+        {brands.length === 0 ? (
+          <p className="mt-1 text-sm">
+            There are no brands yet.{" "}
+            <Link href="/admin/brands/new" className="underline">
+              Add a brand first
+            </Link>
+            , then come back.
+          </p>
+        ) : (
+          <>
+            <select
+              id="brandId"
+              value={values.brandId}
+              onChange={(event) => setField("brandId", event.target.value)}
+              aria-invalid={errors.brandId ? true : undefined}
+              aria-describedby={
+                errors.brandId ? "brandId-error" : "brandId-help"
+              }
+              className={inputClassName}
+            >
+              <option value="">Choose a brand</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                  {brand.isActive ? "" : " (inactive)"}
+                </option>
+              ))}
+            </select>
+            <p id="brandId-help" className="mt-1 text-xs text-ink/70">
+              Perfumes of an inactive brand are hidden from the shop.
+            </p>
+          </>
+        )}
+        <FieldError id="brandId" message={errors.brandId} />
       </div>
 
       <div>

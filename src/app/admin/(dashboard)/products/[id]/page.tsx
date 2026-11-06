@@ -6,7 +6,10 @@ import ProductForm, {
   type ProductFormValues,
 } from "@/components/admin/ProductForm";
 import { requireAdmin } from "@/lib/admin-auth";
-import { getAdminProductForEdit } from "@/lib/admin-products";
+import {
+  getAdminProductForEdit,
+  getBrandOptionsForForm,
+} from "@/lib/admin-products";
 import {
   featuredFullMessage,
   getFeaturedCountForPage,
@@ -38,11 +41,14 @@ async function EditProductContent({ params }: EditProductPageProps) {
 
   if (!product) notFound();
 
-  // Featured perfumes OTHER than this one
-  const otherFeatured = await getFeaturedCountForPage(product.id);
+  // Featured perfumes OTHER than this one, and the brands for the dropdown
+  const [otherFeatured, brands] = await Promise.all([
+    getFeaturedCountForPage(product.id),
+    getBrandOptionsForForm(),
+  ]);
 
   const initialValues: ProductFormValues = {
-    brand: product.brand,
+    brandId: product.brandId,
     name: product.name,
     description: product.description,
     scentFamilies: product.scentFamilies,
@@ -67,6 +73,7 @@ async function EditProductContent({ params }: EditProductPageProps) {
         key={product.id}
         submitAction={updateProductAction.bind(null, product.id)}
         submitLabel="Save changes"
+        brands={brands}
         initialValues={initialValues}
         featuredFull={otherFeatured >= HOMEPAGE_FEATURED_LIMIT}
         featuredMessage={featuredFullMessage}

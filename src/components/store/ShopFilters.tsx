@@ -1,74 +1,211 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
+import { ChevronDown, Search } from "lucide-react";
 import { getScentName, scentFamilies } from "@/config/scents";
-import type { ProductFilters } from "@/lib/filter-products";
+import { DEFAULT_SORT, type ProductFilters } from "@/lib/filter-products";
+import { buildShopHref } from "@/lib/shop-url";
 
-type ShopFiltersProps = { brands: string[]; filters: ProductFilters };
+type ShopFiltersProps = {
+  brandOptions: { slug: string; name: string }[];
+  filters: ProductFilters;
+};
 
-export default function ShopFilters({ brands, filters }: ShopFiltersProps) {
+function FilterGroup({
+  title,
+  defaultOpen = false,
+  clearHref,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  clearHref?: string;
+  children: ReactNode;
+}) {
   return (
-    <form method="get" action="/shop" className="space-y-6">
-      <div>
-        <label htmlFor="q" className="block text-sm font-medium">
-          Search
-        </label>
-        <input
-          id="q"
-          name="q"
-          type="search"
-          defaultValue={filters.q}
-          placeholder="Brand or perfume name"
-          className="mt-1 h-11 w-full rounded border border-ink/20 bg-white px-3"
+    <details
+      open={defaultOpen}
+      className="group border border-ink/15 bg-white/50"
+    >
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-4 text-xs uppercase tracking-[0.2em] [&::-webkit-details-marker]:hidden">
+        {title}
+        <ChevronDown
+          className="h-4 w-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+          aria-hidden="true"
         />
-      </div>
-
-      <div>
-        <label htmlFor="brand" className="block text-sm font-medium">
-          Brand
-        </label>
-        <select
-          id="brand"
-          name="brand"
-          defaultValue={filters.brand}
-          className="mt-1 h-11 w-full rounded border border-ink/20 bg-white px-3"
-        >
-          <option value="">All brands</option>
-          {brands.map((brand) => (
-            <option key={brand} value={brand}>
-              {brand}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <fieldset>
-        <legend className="text-sm font-medium">Scent</legend>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {scentFamilies.map((scent) => (
-            <label
-              key={scent}
-              className="flex h-11 cursor-pointer items-center gap-2 rounded-full border border-ink/20 px-4 text-sm has-checked:border-ink has-checked:bg-ink has-checked:text-cream"
+      </summary>
+      <div className="px-4 pb-4">
+        {clearHref && (
+          <p className="mb-1 text-right">
+            <Link
+              href={clearHref}
+              className="text-xs underline underline-offset-4"
             >
-              <input
-                type="checkbox"
-                name="scent"
-                value={scent}
-                defaultChecked={filters.scents.includes(scent)}
-              />
-              {getScentName(scent)}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+              Clear
+            </Link>
+          </p>
+        )}
+        {children}
+      </div>
+    </details>
+  );
+}
 
-      <div className="flex items-center gap-4">
+const checkRowClass =
+  "flex min-h-10 cursor-pointer items-center gap-2.5 text-sm";
+const priceInputClass =
+  "h-11 w-full border border-ink/15 bg-white px-3 text-sm";
+
+export default function ShopFilters({
+  brandOptions,
+  filters,
+}: ShopFiltersProps) {
+  return (
+    <form method="get" action="/shop" className="space-y-3">
+      <div>
+        <label htmlFor="q" className="sr-only">
+          Search perfumes
+        </label>
+        <div className="relative">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/60"
+            aria-hidden="true"
+          />
+          <input
+            id="q"
+            name="q"
+            type="search"
+            defaultValue={filters.q}
+            placeholder="Search"
+            className="h-11 w-full border border-ink/15 bg-white/60 pl-9 pr-3 text-sm"
+          />
+        </div>
+      </div>
+
+      {filters.sort !== DEFAULT_SORT && (
+        <input type="hidden" name="sort" value={filters.sort} />
+      )}
+
+      <FilterGroup
+        title="Scent"
+        defaultOpen
+        clearHref={
+          filters.scents.length > 0
+            ? buildShopHref(filters, { scents: [], page: 1 })
+            : undefined
+        }
+      >
+        <ul>
+          {scentFamilies.map((scent) => (
+            <li key={scent}>
+              <label className={checkRowClass}>
+                <input
+                  type="checkbox"
+                  name="scent"
+                  value={scent}
+                  defaultChecked={filters.scents.includes(scent)}
+                  className="h-4 w-4 accent-ink"
+                />
+                {getScentName(scent)}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </FilterGroup>
+
+      <FilterGroup
+        title="Brand"
+        defaultOpen
+        clearHref={
+          filters.brands.length > 0
+            ? buildShopHref(filters, { brands: [], page: 1 })
+            : undefined
+        }
+      >
+        {brandOptions.length === 0 ? (
+          <p className="text-sm text-ink/70">No brands yet.</p>
+        ) : (
+          <ul className="max-h-64 overflow-y-auto pr-1">
+            {brandOptions.map((brand) => (
+              <li key={brand.slug}>
+                <label className={checkRowClass}>
+                  <input
+                    type="checkbox"
+                    name="brand"
+                    value={brand.slug}
+                    defaultChecked={filters.brands.includes(brand.slug)}
+                    className="h-4 w-4 accent-ink"
+                  />
+                  {brand.name}
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+      </FilterGroup>
+
+      <FilterGroup
+        title="Price"
+        defaultOpen={filters.minPrice !== null || filters.maxPrice !== null}
+      >
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <label htmlFor="min" className="block text-xs text-ink/70">
+              From (₦)
+            </label>
+            <input
+              id="min"
+              name="min"
+              type="number"
+              min="0"
+              step="1000"
+              inputMode="numeric"
+              defaultValue={filters.minPrice ?? ""}
+              className={priceInputClass}
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="max" className="block text-xs text-ink/70">
+              To (₦)
+            </label>
+            <input
+              id="max"
+              name="max"
+              type="number"
+              min="0"
+              step="1000"
+              inputMode="numeric"
+              defaultValue={filters.maxPrice ?? ""}
+              className={priceInputClass}
+            />
+          </div>
+        </div>
+      </FilterGroup>
+
+      <FilterGroup title="Availability" defaultOpen={filters.onlyAvailable}>
+        <label className={checkRowClass}>
+          <input
+            type="checkbox"
+            name="available"
+            value="1"
+            defaultChecked={filters.onlyAvailable}
+            className="h-4 w-4 accent-ink"
+          />
+          Available now only
+        </label>
+      </FilterGroup>
+
+      <div className="flex items-center gap-5 pt-1">
         <button
           type="submit"
-          className="h-11 rounded bg-ink px-6 text-sm text-cream"
+          className="h-11 bg-ink px-8 text-xs uppercase tracking-[0.2em] text-cream hover:bg-accent"
         >
           Apply
         </button>
-        <Link href="/shop" className="text-sm underline">
-          Clear
+        <Link
+          href="/shop"
+          className="text-xs uppercase tracking-[0.2em] underline underline-offset-4"
+        >
+          Clear all
         </Link>
       </div>
     </form>

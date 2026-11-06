@@ -12,6 +12,7 @@ import {
   HOMEPAGE_FEATURED_LIMIT,
 } from "@/lib/featured-limit";
 import { parseProductInput } from "@/lib/parse-product-input";
+import { brandMissingResult, findBrandForProduct } from "@/lib/product-brand";
 import { buildUniqueProductSlug, rememberOldSlug } from "@/lib/product-slug";
 import type { ProductFormResult } from "@/lib/product-validators";
 import { slugify } from "@/lib/slug";
@@ -86,13 +87,6 @@ export async function updateProductAction(
   const checked = parseProductInput(payload);
   if (!checked.ok) return checked.result;
   const input = checked.input;
-
-  if (!slugify(`${input.brand} ${input.name}`)) {
-    return {
-      ok: false,
-      message: "Enter a brand and name using letters or numbers.",
-    };
-  }
   const productObjectId = new mongoose.Types.ObjectId(productId);
 
   try {
@@ -104,6 +98,17 @@ export async function updateProductAction(
     }).lean();
     if (!existing) return { ok: false, message: "Product not found." };
 
+    // The brand must be a real brand record
+    const brand = await findBrandForProduct(input.brandId);
+    if (!brand) return brandMissingResult;
+
+    if (!slugify(`${brand.name} ${input.name}`)) {
+      return {
+        ok: false,
+        message: "Enter a perfume name using letters or numbers.",
+      };
+    }
+
     // The homepage can only show so many featured perfumes
     if (input.featured && input.isActive) {
       const others = await countOtherActiveFeatured(productObjectId);
@@ -111,7 +116,7 @@ export async function updateProductAction(
     }
 
     const newSlug = await buildUniqueProductSlug(
-      input.brand,
+      brand.name,
       input.name,
       productObjectId,
     );
@@ -126,7 +131,8 @@ export async function updateProductAction(
             existing.slug,
             newSlug,
           ),
-          brand: input.brand,
+          brandId: brand.id,
+          brand: brand.name,
           name: input.name,
           description: input.description,
           scentFamilies: input.scentFamilies,

@@ -13,7 +13,8 @@ const variantSchema = z.object({
 });
 
 export const productInputSchema = z.object({
-  brand: z.string().trim().min(2, "Enter the brand").max(80),
+  // The id of a brand record. The server checks it really exists.
+  brandId: z.string().regex(/^[a-f\d]{24}$/i, "Choose a brand from the list"),
   name: z.string().trim().min(2, "Enter the perfume name").max(120),
   description: z
     .string()

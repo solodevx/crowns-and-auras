@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
 import { requireAdmin } from "@/lib/admin-auth";
+import { getBrandOptionsForForm } from "@/lib/admin-products";
 import {
   featuredFullMessage,
   getFeaturedCountForPage,
@@ -27,12 +28,16 @@ export default function NewProductPage() {
 
 async function NewProductContent() {
   await requireAdmin();
-  const featuredCount = await getFeaturedCountForPage();
+  const [featuredCount, brands] = await Promise.all([
+    getFeaturedCountForPage(),
+    getBrandOptionsForForm(),
+  ]);
 
   return (
     <ProductForm
       submitAction={createProductAction}
       submitLabel="Add product"
+      brands={brands}
       featuredFull={featuredCount >= HOMEPAGE_FEATURED_LIMIT}
       featuredMessage={featuredFullMessage}
     />

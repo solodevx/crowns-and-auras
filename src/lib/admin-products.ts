@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { connectToDatabase } from "@/lib/db";
 import { sortVariantsBySize } from "@/lib/variants";
+import { Brand as BrandModel } from "@/models/Brand";
 import { Product as ProductModel } from "@/models/Product";
 
 type VariantRecord = {
@@ -16,6 +17,7 @@ type VariantRecord = {
 // field exists, so we fill in a safe default when we convert it.
 type ProductRecord = {
   _id: { toString(): string };
+  brandId?: { toString(): string } | null;
   slug?: string | null;
   brand?: string | null;
   name?: string | null;
@@ -78,6 +80,7 @@ export async function getAdminProducts(): Promise<AdminProductRow[]> {
 export type AdminProductEdit = {
   id: string;
   slug: string;
+  brandId: string; // "" when the perfume is not linked to a brand record yet
   brand: string;
   name: string;
   description: string;
@@ -92,6 +95,7 @@ function toEdit(record: ProductRecord): AdminProductEdit {
   return {
     id: record._id.toString(),
     slug: record.slug ?? "",
+    brandId: record.brandId ? record.brandId.toString() : "",
     brand: record.brand ?? "",
     name: record.name ?? "",
     description: record.description ?? "",
@@ -113,4 +117,23 @@ export async function getAdminProductForEdit(
   await connectToDatabase();
   const record = await ProductModel.findById(id).lean();
   return record ? toEdit(record) : null;
+}
+
+// ── The brands in the form's dropdown ──
+
+export async function getBrandOptionsForForm(): Promise<
+  { id: string; name: string; isActive: boolean }[]
+> {
+  await requireAdmin(); // lock the data door
+  await connection();
+  await connectToDatabase();
+
+  const records = await BrandModel.find({}, { name: 1, isActive: 1 })
+    .sort({ name: 1 })
+    .lean();
+  return records.map((record) => ({
+    id: record._id.toString(),
+    name: record.name ?? "",
+    isActive: record.isActive ?? true,
+  }));
 }
