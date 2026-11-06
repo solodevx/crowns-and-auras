@@ -9,6 +9,7 @@ export type CartItem = {
   name: string;
   size: string;
   unitPrice: number; // display only. The server must re-check prices at checkout.
+  image?: string; // a small picture for the cart, if the perfume has one
   quantity: number;
 };
 
@@ -73,14 +74,19 @@ export function useCartItems(): CartItem[] {
 export function addToCart(newItem: Omit<CartItem, "quantity">) {
   const items = readCart();
   const existingItem = items.find(
-    (item) => item.productId === newItem.productId && item.size === newItem.size,
+    (item) =>
+      item.productId === newItem.productId && item.size === newItem.size,
   );
 
   if (existingItem) {
     writeCart(
       items.map((item) =>
         item === existingItem
-          ? { ...item, quantity: Math.min(item.quantity + 1, MAX_QUANTITY) }
+          ? {
+              ...item,
+              image: item.image || newItem.image,
+              quantity: Math.min(item.quantity + 1, MAX_QUANTITY),
+            }
           : item,
       ),
     );
@@ -89,7 +95,11 @@ export function addToCart(newItem: Omit<CartItem, "quantity">) {
   }
 }
 
-export function updateQuantity(productId: string, size: string, quantity: number) {
+export function updateQuantity(
+  productId: string,
+  size: string,
+  quantity: number,
+) {
   const safeQuantity = Math.min(Math.max(quantity, 1), MAX_QUANTITY);
   writeCart(
     readCart().map((item) =>
@@ -108,13 +118,17 @@ export function removeItem(productId: string, size: string) {
   );
 }
 
+export function clearCart() {
+  writeCart([]);
+}
+
 export function getCartCount(items: CartItem[]): number {
   return items.reduce((total, item) => total + item.quantity, 0);
 }
 
 export function getCartSubtotal(items: CartItem[]): number {
-  return items.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
-}
-export function clearCart() {
-  writeCart([]);
+  return items.reduce(
+    (total, item) => total + item.unitPrice * item.quantity,
+    0,
+  );
 }

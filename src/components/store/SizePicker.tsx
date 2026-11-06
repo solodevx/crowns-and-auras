@@ -28,6 +28,7 @@ export default function SizePicker({ product }: { product: Product }) {
       name: product.name,
       size: selectedVariant.size,
       unitPrice: selectedVariant.price,
+      image: product.images[0] ?? "",
     });
     setJustAdded(true);
   }
