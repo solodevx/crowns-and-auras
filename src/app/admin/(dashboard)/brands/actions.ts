@@ -20,7 +20,7 @@ export type BrandActionResult = { ok: true } | { ok: false; message: string };
 
 type Failure = Extract<BrandFormResult, { ok: false }>;
 
-const homepageFullMessage = `The homepage is full: ${HOMEPAGE_BRAND_LIMIT} brands are already featured. Unfeature one first.`;
+const homepageFullMessage = `Your featured list is full: ${HOMEPAGE_BRAND_LIMIT} brands are already featured. Unfeature one first.`;
 
 function parseBrandInput(
   payload: unknown,

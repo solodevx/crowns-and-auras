@@ -2,12 +2,14 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import AboutBanner from "@/components/store/AboutBanner";
+import BrandCards from "@/components/store/BrandCards";
 import CollectionCards from "@/components/store/CollectionCards";
 import FeaturedProductCard from "@/components/store/FeaturedProductCard";
 import Hero from "@/components/store/Hero";
 import SectionHeading from "@/components/store/SectionHeading";
+import { HOMEPAGE_FEATURED_SHOWN } from "@/config/homepage";
 import { siteConfig } from "@/config/site";
-import { getFeaturedProducts } from "@/lib/products";
+import { getRandomFeaturedProducts } from "@/lib/random-featured";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 // PLACEHOLDER COPY: replace with the client's real wording before launch.
@@ -20,10 +22,9 @@ const steps = [
   { title: "We deliver", text: "Delivery across Lagos." },
 ];
 
-const FEATURED_COUNT = 6;
-
 async function FeaturedProducts() {
-  const featured = (await getFeaturedProducts()).slice(0, FEATURED_COUNT);
+  // A few of the featured perfumes, picked at random on every visit
+  const featured = await getRandomFeaturedProducts(HOMEPAGE_FEATURED_SHOWN);
 
   if (featured.length === 0) {
     return (
@@ -53,6 +54,10 @@ export default function HomePage() {
       <Hero />
 
       <CollectionCards />
+
+      <Suspense fallback={null}>
+        <BrandCards />
+      </Suspense>
 
       <section className="mx-auto max-w-6xl px-4 pb-14 pt-4">
         <SectionHeading title="Featured fragrances" />

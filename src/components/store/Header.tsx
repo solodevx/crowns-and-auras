@@ -8,13 +8,13 @@ import MobileMenu from "./MobileMenu";
 const leftLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Scents", href: "/#scents" },
+  { label: "Brands", href: "/brands" },
   { label: "About", href: "/#about" },
 ];
 const rightLinks = [{ label: "Contact", href: "#contact" }];
 const mobileLinks = [
   ...leftLinks,
   ...rightLinks,
-  { label: "Search", href: "/shop" },
 ];
 
 const navLinkClass =

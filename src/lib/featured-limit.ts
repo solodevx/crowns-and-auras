@@ -6,10 +6,11 @@ import { connectToDatabase } from "@/lib/db";
 import type { ProductFormResult } from "@/lib/product-validators";
 import { Product } from "@/models/Product";
 
-// The homepage shows at most this many featured perfumes
-export const HOMEPAGE_FEATURED_LIMIT = 6;
+// The most perfumes that can be marked featured. The home page picks a few of
+// them at random each visit (see config/homepage.ts).
+export const HOMEPAGE_FEATURED_LIMIT = 10;
 
-export const featuredFullMessage = `The homepage is full: ${HOMEPAGE_FEATURED_LIMIT} perfumes are already featured. Untick one first.`;
+export const featuredFullMessage = `Your featured list is full: ${HOMEPAGE_FEATURED_LIMIT} perfumes are already featured. Untick one first.`;
 
 export const featuredFullResult: ProductFormResult = {
   ok: false,

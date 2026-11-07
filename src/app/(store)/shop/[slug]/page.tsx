@@ -136,8 +136,13 @@ async function ProductDetails({ params }: ProductPageProps) {
         </div>
 
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-ink/70">
-            {product.brand}
+          <p className="text-xs uppercase tracking-[0.25em]">
+            <Link
+              href={`/brands/${product.brandSlug}`}
+              className="text-ink/70 underline-offset-4 hover:underline"
+            >
+              {product.brand}
+            </Link>
           </p>
           <h1 className="mt-2 font-serif text-3xl uppercase tracking-wide md:text-4xl">
             {product.name}

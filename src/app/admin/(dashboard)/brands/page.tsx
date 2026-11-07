@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import BrandToggleButton from "@/components/admin/BrandToggleButton";
+import { HOMEPAGE_BRANDS_SHOWN } from "@/config/homepage";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminBrands } from "@/lib/admin-brands";
 import { HOMEPAGE_BRAND_LIMIT } from "@/lib/brand-rules";
@@ -46,11 +47,11 @@ async function BrandsContent({ searchParams }: BrandsPageProps) {
       : "";
 
   const brands = await getAdminBrands();
-  const shownOnHomepage = brands.filter(
+  const featuredCount = brands.filter(
     (brand) => brand.isActive && brand.isFeatured,
   ).length;
-  const homepageFull = shownOnHomepage >= HOMEPAGE_BRAND_LIMIT;
-  const fullHint = `Homepage full (${HOMEPAGE_BRAND_LIMIT})`;
+  const poolFull = featuredCount >= HOMEPAGE_BRAND_LIMIT;
+  const fullHint = `Featured list full (${HOMEPAGE_BRAND_LIMIT})`;
 
   return (
     <>
@@ -64,15 +65,19 @@ async function BrandsContent({ searchParams }: BrandsPageProps) {
       )}
 
       <p className="mt-6 text-sm text-ink/80">
-        Homepage brands: {shownOnHomepage} of {HOMEPAGE_BRAND_LIMIT}
-        {homepageFull && " (full: unfeature one to feature another)"}
+        Featured brands: {featuredCount} of {HOMEPAGE_BRAND_LIMIT}. The homepage
+        shows {HOMEPAGE_BRANDS_SHOWN} of them at random on each visit.
+        {featuredCount < HOMEPAGE_BRANDS_SHOWN &&
+          ` Feature ${HOMEPAGE_BRANDS_SHOWN - featuredCount} more to fill every spot.`}
+        {featuredCount === HOMEPAGE_BRAND_LIMIT &&
+          " The featured list is full: unfeature one to feature another."}
       </p>
 
-      {shownOnHomepage > HOMEPAGE_BRAND_LIMIT && (
+      {featuredCount > HOMEPAGE_BRAND_LIMIT && (
         <p className="mt-3 rounded border border-amber-700/30 bg-amber-100 px-4 py-3 text-sm text-amber-900">
-          {shownOnHomepage} brands are featured, but the homepage shows only the
-          first {HOMEPAGE_BRAND_LIMIT} (by display order). Unfeature{" "}
-          {shownOnHomepage - HOMEPAGE_BRAND_LIMIT} of them.
+          {featuredCount} brands are featured, but the limit is{" "}
+          {HOMEPAGE_BRAND_LIMIT}. Unfeature{" "}
+          {featuredCount - HOMEPAGE_BRAND_LIMIT} of them.
         </p>
       )}
 
@@ -144,7 +149,7 @@ async function BrandsContent({ searchParams }: BrandsPageProps) {
                   nextValue={!brand.isFeatured}
                   label={brand.isFeatured ? "Unfeature" : "Feature"}
                   describedBy={brand.name}
-                  disabled={!brand.isFeatured && brand.isActive && homepageFull}
+                  disabled={!brand.isFeatured && brand.isActive && poolFull}
                   hint={fullHint}
                 />
                 <BrandToggleButton
@@ -153,7 +158,7 @@ async function BrandsContent({ searchParams }: BrandsPageProps) {
                   nextValue={!brand.isActive}
                   label={brand.isActive ? "Deactivate" : "Activate"}
                   describedBy={brand.name}
-                  disabled={!brand.isActive && brand.isFeatured && homepageFull}
+                  disabled={!brand.isActive && brand.isFeatured && poolFull}
                   hint={fullHint}
                 />
               </div>

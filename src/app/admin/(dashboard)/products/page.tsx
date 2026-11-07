@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import ProductVisibilityButton from "@/components/admin/ProductVisibilityButton";
+import { HOMEPAGE_FEATURED_SHOWN } from "@/config/homepage";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getAdminProducts } from "@/lib/admin-products";
 import { HOMEPAGE_FEATURED_LIMIT } from "@/lib/featured-limit";
@@ -37,23 +38,27 @@ async function ProductsContent() {
     return <p className="mt-8 text-ink/70">No products yet.</p>;
   }
 
-  const featuredShown = products.filter(
+  const featuredCount = products.filter(
     (product) => product.featured && product.isActive,
   ).length;
 
   return (
     <>
       <p className="mt-6 text-sm text-ink/80">
-        Homepage featured: {featuredShown} of {HOMEPAGE_FEATURED_LIMIT}
-        {featuredShown >= HOMEPAGE_FEATURED_LIMIT &&
-          " (full: untick one to feature another)"}
+        Featured perfumes: {featuredCount} of {HOMEPAGE_FEATURED_LIMIT}. The
+        homepage shows {HOMEPAGE_FEATURED_SHOWN} of them at random on each
+        visit.
+        {featuredCount < HOMEPAGE_FEATURED_SHOWN &&
+          ` Feature ${HOMEPAGE_FEATURED_SHOWN - featuredCount} more to fill every spot.`}
+        {featuredCount === HOMEPAGE_FEATURED_LIMIT &&
+          " The featured list is full: untick one to feature another."}
       </p>
 
-      {featuredShown > HOMEPAGE_FEATURED_LIMIT && (
+      {featuredCount > HOMEPAGE_FEATURED_LIMIT && (
         <p className="mt-3 rounded border border-amber-700/30 bg-amber-100 px-4 py-3 text-sm text-amber-900">
-          {featuredShown} perfumes are featured, but the homepage shows only{" "}
+          {featuredCount} perfumes are featured, but the limit is{" "}
           {HOMEPAGE_FEATURED_LIMIT}. Untick &ldquo;Show on the homepage&rdquo;
-          on {featuredShown - HOMEPAGE_FEATURED_LIMIT} of them.
+          on {featuredCount - HOMEPAGE_FEATURED_LIMIT} of them.
         </p>
       )}
 
