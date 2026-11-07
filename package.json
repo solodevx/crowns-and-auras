@@ -11,7 +11,8 @@
     "migrate-brands": "tsx --env-file=.env.local scripts/migrate-brands.ts",
     "migrate-scents": "tsx --env-file=.env.local scripts/migrate-scent-categories.ts",
     "seed-dev": "tsx --env-file=.env.local scripts/seed-dev.ts",
-    "sync-addresses": "tsx --env-file=.env.local scripts/sync-product-addresses.ts"
+    "sync-addresses": "tsx --env-file=.env.local scripts/sync-product-addresses.ts",
+    "test-whatsapp": "tsx --env-file=.env.local scripts/test-whatsapp.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

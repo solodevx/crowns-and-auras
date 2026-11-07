@@ -59,8 +59,20 @@ export default function ShopFilters({
   brandOptions,
   filters,
 }: ShopFiltersProps) {
+  // The boxes only read their starting state when they first appear. Giving the
+  // form a key that changes with the chosen filters rebuilds it, so the ticks,
+  // the search box and the prices always match the address in the browser.
+  const formKey = [
+    filters.q,
+    filters.brands.join(","),
+    filters.scents.join(","),
+    filters.minPrice ?? "",
+    filters.maxPrice ?? "",
+    filters.onlyAvailable ? "1" : "0",
+  ].join("|");
+
   return (
-    <form method="get" action="/shop" className="space-y-3">
+    <form key={formKey} method="get" action="/shop" className="space-y-3">
       <div>
         <label htmlFor="q" className="sr-only">
           Search perfumes

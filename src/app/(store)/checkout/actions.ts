@@ -1,9 +1,11 @@
 "use server";
 
 import { randomInt } from "node:crypto";
+import { after } from "next/server";
 import { z } from "zod";
 import { getDeliveryZone } from "@/config/delivery-zones";
 import { connectToDatabase } from "@/lib/db";
+import { notifyNewOrder } from "@/lib/notify-owner";
 import { calculateOrderTotals } from "@/lib/order";
 import { priceCart } from "@/lib/price-cart";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -120,6 +122,22 @@ export async function createOrder(
           total: totals.total,
           notes: details.notes || undefined,
         });
+
+        // Tell the owner on WhatsApp, after the customer already has their answer.
+        // A problem here never affects the order.
+        after(() =>
+          notifyNewOrder({
+            orderNumber: order.orderNumber,
+            customerName: details.name,
+            total: totals.total,
+            itemCount: priced.lines.reduce(
+              (sum, line) => sum + line.quantity,
+              0,
+            ),
+            zoneName: zone.name,
+          }),
+        );
+
         return { ok: true, orderNumber: order.orderNumber };
       } catch (error) {
         const duplicateField = getDuplicateKeyField(error);

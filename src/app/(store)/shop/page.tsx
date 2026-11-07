@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import ActiveFilters from "@/components/store/ActiveFilters";
 import Pagination from "@/components/store/Pagination";
 import ProductCard from "@/components/store/ProductCard";
 import ShopFilterPanel from "@/components/store/ShopFilterPanel";
@@ -69,6 +70,11 @@ async function ShopResults({ searchParams }: ShopPageProps) {
   const matches = filterProducts(allProducts, filters);
   const { items, page, totalPages } = paginate(matches, filters.page);
 
+  const brandOptions = getBrandOptions(allProducts);
+  const brandNames = new Map(
+    brandOptions.map((brand) => [brand.slug, brand.name]),
+  );
+
   const activeCount =
     (filters.q ? 1 : 0) +
     filters.brands.length +
@@ -79,15 +85,12 @@ async function ShopResults({ searchParams }: ShopPageProps) {
   return (
     <div className="mt-12 grid gap-x-8 gap-y-6 lg:grid-cols-[16rem_1fr]">
       <p className="hidden text-xs uppercase tracking-[0.3em] lg:col-start-1 lg:row-start-1 lg:flex lg:items-center">
-        Filtered by:
+        Filter
       </p>
 
       <div className="lg:col-start-1 lg:row-start-2">
         <ShopFilterPanel activeCount={activeCount}>
-          <ShopFilters
-            brandOptions={getBrandOptions(allProducts)}
-            filters={filters}
-          />
+          <ShopFilters brandOptions={brandOptions} filters={filters} />
         </ShopFilterPanel>
       </div>
 
@@ -99,6 +102,8 @@ async function ShopResults({ searchParams }: ShopPageProps) {
       </div>
 
       <div className="lg:col-start-2 lg:row-start-2">
+        <ActiveFilters filters={filters} brandNames={brandNames} />
+
         {items.length === 0 ? (
           <p className="py-10">
             No perfumes match those filters.{" "}
