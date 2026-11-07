@@ -441,6 +441,13 @@ export default function CheckoutForm() {
           </span>
         </p>
 
+        <p className="mt-4 text-xs text-cream/75">
+          We use your details only to process and deliver your order.{" "}
+          <Link href="/privacy" className="underline underline-offset-4">
+            Privacy notice
+          </Link>
+        </p>
+
         <Link
           href="/cart"
           className="mt-4 inline-flex h-11 items-center text-xs uppercase tracking-[0.15em] underline underline-offset-4"

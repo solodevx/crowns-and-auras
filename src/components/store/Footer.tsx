@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Landmark, Mail, MessageCircle, Truck } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
@@ -118,9 +119,17 @@ export default async function Footer() {
       </div>
 
       <div className="border-t border-cream/15">
-        <p className="mx-auto max-w-6xl px-4 py-4 text-xs text-cream/70">
-          © {year} {siteConfig.name}. All rights reserved. Placeholder content.
-        </p>
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 px-4 py-2 text-xs text-cream/70">
+          <p className="py-2">
+            © {year} {siteConfig.name}. All rights reserved. Placeholder content.
+          </p>
+          <Link
+            href="/privacy"
+            className="inline-flex h-11 items-center underline underline-offset-4 hover:text-gold"
+          >
+            Privacy notice
+          </Link>
+        </div>
       </div>
     </footer>
   );

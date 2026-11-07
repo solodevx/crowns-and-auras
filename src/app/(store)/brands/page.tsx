@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import BrandCard from "@/components/store/BrandCard";
+import BrandDirectoryTile from "@/components/store/BrandDirectoryTile";
 import { getActiveBrands } from "@/lib/brands";
 import type { SearchParams } from "@/lib/filter-products";
 
@@ -121,13 +121,19 @@ async function BrandResults({ searchParams }: BrandsPageProps) {
           </Link>
         </p>
       ) : (
-        <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-4 lg:grid-cols-4">
-          {brands.map((brand) => (
-            <li key={brand.id}>
-              <BrandCard brand={brand} />
-            </li>
-          ))}
-        </ul>
+        <>
+          {/* Thin lines between the tiles: each tile pulls itself over its neighbour's border */}
+          <ul className="mt-10 grid grid-cols-2 pl-px pt-px md:grid-cols-3 lg:grid-cols-4">
+            {brands.map((brand) => (
+              <li key={brand.id} className="-ml-px -mt-px">
+                <BrandDirectoryTile brand={brand} />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 text-center text-sm text-ink/70">
+            {brands.length} {brands.length === 1 ? "brand" : "brands"}
+          </p>
+        </>
       )}
     </div>
   );

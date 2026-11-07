@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Check, SlidersHorizontal } from "lucide-react";
-import BrandProductTile from "@/components/store/BrandProductTile";
+import ProductTile from "@/components/store/ProductTile";
 import { getBrandBySlug, getBrandCurrentSlug } from "@/lib/brands";
 import {
   DEFAULT_SORT,
@@ -261,7 +261,7 @@ async function BrandDetails({ params, searchParams }: BrandPageProps) {
           <ul className="mt-8 grid grid-cols-2 pl-px pt-px md:grid-cols-3 lg:grid-cols-4">
             {shown.map((product) => (
               <li key={product.id} className="-ml-px -mt-px">
-                <BrandProductTile product={product} />
+                <ProductTile product={product} />
               </li>
             ))}
           </ul>

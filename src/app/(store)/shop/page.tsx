@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import ActiveFilters from "@/components/store/ActiveFilters";
 import Pagination from "@/components/store/Pagination";
-import ProductCard from "@/components/store/ProductCard";
+import ProductTile from "@/components/store/ProductTile";
 import ShopFilterPanel from "@/components/store/ShopFilterPanel";
 import ShopFilters from "@/components/store/ShopFilters";
 import SortSelect from "@/components/store/SortSelect";
@@ -112,11 +112,14 @@ async function ShopResults({ searchParams }: ShopPageProps) {
             </Link>
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-4">
+          /* Thin lines between the tiles: each tile pulls itself over its neighbour's border */
+          <ul className="grid grid-cols-2 pl-px pt-px md:grid-cols-3">
             {items.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <li key={product.id} className="-ml-px -mt-px">
+                <ProductTile product={product} showBrand />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
         <Pagination filters={filters} page={page} totalPages={totalPages} />
       </div>
