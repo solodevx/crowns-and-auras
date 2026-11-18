@@ -18,6 +18,14 @@ export const metadata = {
 
 type OrderConfirmationProps = { params: Promise<{ orderNumber: string }> };
 
+type PayRow = {
+  label: string;
+  value: string; // what the customer sees
+  copy?: string; // what the Copy button copies
+  copyLabel?: string; // read out by screen readers
+  large?: boolean;
+};
+
 export default function OrderConfirmationPage({
   params,
 }: OrderConfirmationProps) {
@@ -45,6 +53,39 @@ async function OrderDetails({ params }: OrderConfirmationProps) {
     siteConfig.whatsappNumber,
     `Hello, I have paid for order ${order.orderNumber} (${formatNaira(order.total)}). Here is my proof of payment.`,
   );
+
+  // Every line has its own Copy button. The amount is copied as plain digits,
+  // because bank apps don't accept commas or the naira sign.
+  const payRows: PayRow[] = [
+    {
+      label: "Bank",
+      value: bankDetails.bankName,
+    },
+    {
+      label: "Account name",
+      value: bankDetails.accountName,
+    },
+    {
+      label: "Account number",
+      value: bankDetails.accountNumber,
+      copy: bankDetails.accountNumber,
+      copyLabel: "account number",
+      large: true,
+    },
+    {
+      label: "Amount",
+      value: formatNaira(order.total),
+      copy: String(order.total),
+      copyLabel: "amount",
+    },
+    {
+      label: "Reference",
+      value: order.orderNumber,
+      copy: order.orderNumber,
+      copyLabel: "reference",
+      large: true,
+    },
+  ];
 
   return (
     <>
@@ -84,31 +125,32 @@ async function OrderDetails({ params }: OrderConfirmationProps) {
                 <p className="font-medium">Transfer the total</p>
                 <p className="mt-1 text-sm text-ink/80">
                   Send <strong>{formatNaira(order.total)}</strong> to the
-                  account below. Please put <strong>{order.orderNumber}</strong>{" "}
-                  as the reference so we can find your payment.
+                  account below. Paste <strong>{order.orderNumber}</strong> as
+                  the <strong>reference</strong> (the narration or note field in
+                  your bank app), so we can find your payment.
                 </p>
 
                 <dl className="mt-4 divide-y divide-ink/10 border-y border-ink/10 text-sm">
-                  <div className="flex items-center justify-between gap-4 py-2">
-                    <dt className="text-ink/70">Bank</dt>
-                    <dd>{bankDetails.bankName}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 py-2">
-                    <dt className="text-ink/70">Account name</dt>
-                    <dd>{bankDetails.accountName}</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 py-1">
-                    <dt className="text-ink/70">Account number</dt>
-                    <dd className="flex items-center gap-2">
-                      <span className="font-serif text-xl tracking-wider">
-                        {bankDetails.accountNumber}
-                      </span>
-                      <CopyButton
-                        value={bankDetails.accountNumber}
-                        label="account number"
-                      />
-                    </dd>
-                  </div>
+                  {payRows.map((row) => (
+                    <div
+                      key={row.label}
+                      className="flex flex-wrap items-center justify-between gap-x-4 py-1"
+                    >
+                      <dt className="text-ink/70">{row.label}</dt>
+                      <dd className="flex items-center gap-2">
+                        <span
+                          className={
+                            row.large ? "font-serif text-xl tracking-wider" : ""
+                          }
+                        >
+                          {row.value}
+                        </span>
+                        {row.copy && row.copyLabel && (
+                          <CopyButton value={row.copy} label={row.copyLabel} />
+                        )}
+                      </dd>
+                    </div>
+                  ))}
                 </dl>
               </div>
             </li>

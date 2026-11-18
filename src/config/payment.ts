@@ -1,6 +1,6 @@
 // PLACEHOLDER bank details: replace with the client's real account before launch.
 export const bankDetails = {
-  bankName: "Example Bank",
-  accountName: "Example Account Name",
-  accountNumber: "0000000000",
+  bankName: "Moniepoint Microfinance Bank",
+  accountName: "Joy Chukwukodiali Isu",
+  accountNumber: "8084677628",
 };

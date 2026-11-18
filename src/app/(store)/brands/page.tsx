@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import BrandDirectoryTile from "@/components/store/BrandDirectoryTile";
 import { getActiveBrands } from "@/lib/brands";
 import type { SearchParams } from "@/lib/filter-products";
+import { shuffle } from "@/lib/shuffle";
 
 export const metadata = {
   title: "Brands",
@@ -59,11 +60,13 @@ async function BrandResults({ searchParams }: BrandsPageProps) {
   const query = (raw ?? "").trim().slice(0, 60);
 
   const allBrands = await getActiveBrands();
+  // Browsing: a different random order on every visit.
+  // Searching: A to Z, so a brand is easy to find.
   const brands = query
     ? allBrands.filter((brand) =>
         brand.name.toLowerCase().includes(query.toLowerCase()),
       )
-    : allBrands;
+    : shuffle(allBrands);
 
   return (
     <div className="mt-12">

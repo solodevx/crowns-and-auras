@@ -42,18 +42,18 @@ export async function getFeaturedBrands(): Promise<PublicBrand[]> {
   await connection();
   await connectToDatabase();
   const records = await BrandModel.find({ isActive: true, isFeatured: true })
-    .sort({ displayOrder: 1, name: 1 })
+    .sort({ name: 1 })
     .limit(HOMEPAGE_BRAND_LIMIT)
     .lean();
   return records.map(toBrand);
 }
 
-// Every active brand, for the directory and the sitemap
+// Every active brand, A to Z (the pages that show them mix the order up)
 export async function getActiveBrands(): Promise<PublicBrand[]> {
   await connection();
   await connectToDatabase();
   const records = await BrandModel.find({ isActive: true })
-    .sort({ displayOrder: 1, name: 1 })
+    .sort({ name: 1 })
     .lean();
   return records.map(toBrand);
 }

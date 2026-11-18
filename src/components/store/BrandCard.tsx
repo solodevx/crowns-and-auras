@@ -2,10 +2,6 @@ import Link from "next/link";
 import type { PublicBrand } from "@/lib/brands";
 import { optimizedImageUrl } from "@/lib/image-url";
 
-// "contain" fits a whole logo inside the tile. Change it to "cover" if you
-// upload photos instead of logos, so the picture fills the tile.
-const IMAGE_FIT: "contain" | "cover" = "contain";
-
 function initials(name: string): string {
   return name
     .split(/\s+/)
@@ -15,6 +11,7 @@ function initials(name: string): string {
     .join("");
 }
 
+// A portrait tile: the picture fills it edge to edge, the name sits below.
 export default function BrandCard({ brand }: { brand: PublicBrand }) {
   // Only trust pictures from our own image library
   const image = brand.imageUrl.startsWith("https://res.cloudinary.com/")
@@ -22,32 +19,31 @@ export default function BrandCard({ brand }: { brand: PublicBrand }) {
     : "";
 
   return (
-    <Link href={`/brands/${brand.slug}`} className="group block text-center">
-      <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden border border-ink/15 bg-white transition-colors group-hover:border-gold">
+    <Link
+      href={`/brands/${brand.slug}`}
+      className="group flex h-full flex-col border border-ink/10 bg-[color-mix(in_srgb,var(--color-blush)_55%,var(--color-cream))] text-center transition-colors hover:bg-blush"
+    >
+      <div className="relative aspect-3/4 w-full overflow-hidden">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={optimizedImageUrl(image, 480, 360)}
+            src={optimizedImageUrl(image, 600, 800)}
             alt={`${brand.name} brand image`}
-            width={480}
-            height={360}
+            width={600}
+            height={800}
             loading="lazy"
-            className={
-              IMAGE_FIT === "contain"
-                ? "h-full w-full object-contain p-6"
-                : "h-full w-full object-cover"
-            }
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         ) : (
           <span
             aria-hidden="true"
-            className="font-serif text-4xl tracking-wider text-ink/30"
+            className="absolute inset-0 flex items-center justify-center font-serif text-4xl tracking-wider text-ink/30"
           >
             {initials(brand.name)}
           </span>
         )}
       </div>
-      <p className="mt-3 font-serif text-sm uppercase tracking-[0.15em] group-hover:underline group-hover:underline-offset-4">
+      <p className="px-3 py-4 font-serif text-xs uppercase tracking-[0.15em] group-hover:underline group-hover:underline-offset-4 sm:text-sm">
         {brand.name}
       </p>
     </Link>
