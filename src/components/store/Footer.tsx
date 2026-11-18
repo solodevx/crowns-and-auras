@@ -121,7 +121,7 @@ export default async function Footer() {
       <div className="border-t border-cream/15">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 px-4 py-2 text-xs text-cream/70">
           <p className="py-2">
-            © {year} {siteConfig.name}. All rights reserved. Placeholder content.
+            © {year} {siteConfig.name}. All rights reserved.
           </p>
           <Link
             href="/privacy"
